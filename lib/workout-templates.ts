@@ -728,6 +728,249 @@ export const ATHLETE_TEMPLATES: AthleteTemplate[] = [
   },
 ];
 
+// ─── Bodybuilder / Fisiculturista Templates ───────────────────────────────────
+// These extend AthleteTemplate; using the same interface.
+
+export const BODYBUILDER_TEMPLATES: AthleteTemplate[] = [
+  // ─── Gabriel Ganley ────────────────────────────────────────────────────────
+  {
+    id: "ganley",
+    athleteName: "Gabriel Ganley",
+    sport: "Fisiculturismo — Classic Physique",
+    description: "Treino de hipertrofia clássica em 5 dias inspirado no IFBB Pro brasileiro. Alto volume, foco em proporção e simetria.",
+    quote: "Consistência é a chave — nenhum dia é opcional.",
+    daysPerWeek: 5,
+    goal: "Hipertrofia / Estética Clássica",
+    days: [
+      {
+        dayOfWeek: 1,
+        name: "Peito + Tríceps",
+        muscleGroup: "peito",
+        exercises: [
+          { name: "Supino Reto com Barra", sets: 4, reps: "8-10", restSecs: 90, notes: "Foco em contração máxima" },
+          { name: "Supino Inclinado com Halteres", sets: 4, reps: "10-12", restSecs: 75 },
+          { name: "Crucifixo Inclinado com Halteres", sets: 3, reps: "12-15", restSecs: 60 },
+          { name: "Cross Over no Cabo (de baixo)", sets: 3, reps: "15", restSecs: 60, notes: "Contração forte no pico" },
+          { name: "Tríceps Corda", sets: 4, reps: "12-15", restSecs: 60 },
+          { name: "Tríceps Francês com Halteres", sets: 3, reps: "12", restSecs: 60 },
+          { name: "Mergulho em Banco", sets: 3, reps: "máx", restSecs: 60, notes: "Finalizador" },
+        ],
+      },
+      {
+        dayOfWeek: 2,
+        name: "Costas + Bíceps",
+        muscleGroup: "costas",
+        exercises: [
+          { name: "Barra Fixa com Pegada Aberta", sets: 4, reps: "8-10", restSecs: 90, notes: "Largura de costas" },
+          { name: "Remada Curvada com Barra", sets: 4, reps: "8-10", restSecs: 90 },
+          { name: "Puxada Alta Frontal com Barra", sets: 3, reps: "10-12", restSecs: 75 },
+          { name: "Serrote com Halter", sets: 3, reps: "12 cada", restSecs: 75 },
+          { name: "Remada Baixa com Triângulo", sets: 3, reps: "12", restSecs: 60 },
+          { name: "Rosca Direta com Barra", sets: 4, reps: "10", restSecs: 75 },
+          { name: "Rosca Martelo", sets: 3, reps: "12 cada", restSecs: 60 },
+        ],
+      },
+      {
+        dayOfWeek: 3,
+        name: "Ombros + Trapézio",
+        muscleGroup: "ombros",
+        exercises: [
+          { name: "Desenvolvimento com Halteres", sets: 4, reps: "10-12", restSecs: 90 },
+          { name: "Elevação Lateral com Halteres", sets: 5, reps: "15-20", restSecs: 60, notes: "3 séries normais + 2 drop-set" },
+          { name: "Elevação Frontal com Anilha", sets: 3, reps: "12-15", restSecs: 60 },
+          { name: "Face Pull com Corda", sets: 4, reps: "20", restSecs: 45, notes: "Saúde dos ombros" },
+          { name: "Encolhimento com Halteres", sets: 4, reps: "12-15", restSecs: 60, notes: "Trapézio" },
+          { name: "Encolhimento com Barra por Trás", sets: 3, reps: "15", restSecs: 60 },
+        ],
+      },
+      {
+        dayOfWeek: 4,
+        name: "Pernas — Quadríceps + Panturrilha",
+        muscleGroup: "pernas",
+        exercises: [
+          { name: "Agachamento Livre", sets: 5, reps: "8-12", restSecs: 120 },
+          { name: "Leg Press 45°", sets: 4, reps: "12-15", restSecs: 90 },
+          { name: "Extensora", sets: 4, reps: "15-20", restSecs: 60, notes: "Pré-exaustão ou finalizador" },
+          { name: "Agachamento Hack na Máquina", sets: 3, reps: "12", restSecs: 90 },
+          { name: "Panturrilha em Pé na Máquina", sets: 5, reps: "15-20", restSecs: 45 },
+          { name: "Panturrilha Sentada", sets: 4, reps: "20-25", restSecs: 45 },
+        ],
+      },
+      {
+        dayOfWeek: 5,
+        name: "Pernas — Posterior + Abdômen",
+        muscleGroup: "pernas",
+        exercises: [
+          { name: "Levantamento Terra Romeno com Barra", sets: 4, reps: "10-12", restSecs: 90 },
+          { name: "Mesa Flexora", sets: 4, reps: "12-15", restSecs: 75 },
+          { name: "Elevação Pélvica com Barra (Hip Thrust)", sets: 4, reps: "12", restSecs: 75 },
+          { name: "Flexora em Pé (Unilateral)", sets: 3, reps: "12 cada", restSecs: 60 },
+          { name: "Prancha", sets: 3, reps: "60s", restSecs: 45 },
+          { name: "Abdominal Supra no Cabo", sets: 4, reps: "20", restSecs: 45 },
+          { name: "Elevação de Pernas Suspensa", sets: 3, reps: "15", restSecs: 60 },
+        ],
+      },
+    ],
+  },
+
+  // ─── Renato Cariani ────────────────────────────────────────────────────────
+  {
+    id: "cariani",
+    athleteName: "Renato Cariani",
+    sport: "Fisiculturismo — Men's Physique",
+    description: "Método Nota 10 — treino de detalhamento e proporção em 5 dias, alto volume e cadência controlada.",
+    quote: "Não treine apenas para ter um corpo bonito — treine para ter saúde, disciplina e propósito.",
+    daysPerWeek: 5,
+    goal: "Hipertrofia / Definição / Saúde",
+    days: [
+      {
+        dayOfWeek: 1,
+        name: "Peito — Alto Volume",
+        muscleGroup: "peito",
+        exercises: [
+          { name: "Supino Reto com Barra", sets: 4, reps: "10-12", restSecs: 75 },
+          { name: "Supino Inclinado com Halteres", sets: 4, reps: "10-12", restSecs: 75 },
+          { name: "Supino Declinado com Halteres", sets: 3, reps: "12", restSecs: 60 },
+          { name: "Crucifixo com Halteres", sets: 3, reps: "12-15", restSecs: 60 },
+          { name: "Cross Over de Cima", sets: 3, reps: "15", restSecs: 45, notes: "Porção inferior do peitoral" },
+          { name: "Flexão de Braço com Pegada Fechada", sets: 3, reps: "máx", restSecs: 60, notes: "Finalizador" },
+        ],
+      },
+      {
+        dayOfWeek: 2,
+        name: "Costas — Largura & Espessura",
+        muscleGroup: "costas",
+        exercises: [
+          { name: "Puxada Alta Frontal Pegada Larga", sets: 4, reps: "10-12", restSecs: 75 },
+          { name: "Remada Curvada com Barra (Supinada)", sets: 4, reps: "10", restSecs: 90 },
+          { name: "Barra Fixa Pronada", sets: 3, reps: "máx", restSecs: 90 },
+          { name: "Remada Máquina (Chest Supported)", sets: 3, reps: "12-15", restSecs: 60 },
+          { name: "Puxada Alta com Triângulo", sets: 3, reps: "12", restSecs: 60, notes: "Foco em latíssimo baixo" },
+          { name: "Pull-over na Polia", sets: 3, reps: "15", restSecs: 60 },
+        ],
+      },
+      {
+        dayOfWeek: 3,
+        name: "Ombros — Detalhamento",
+        muscleGroup: "ombros",
+        exercises: [
+          { name: "Desenvolvimento com Barra na Frente", sets: 4, reps: "10", restSecs: 90 },
+          { name: "Desenvolvimento com Halteres", sets: 3, reps: "12", restSecs: 75 },
+          { name: "Elevação Lateral Sentado", sets: 5, reps: "15", restSecs: 60 },
+          { name: "Elevação Lateral com Cabo (Cruzado)", sets: 3, reps: "15 cada", restSecs: 60 },
+          { name: "Face Pull", sets: 4, reps: "20", restSecs: 45 },
+          { name: "Elevação Frontal Alternada", sets: 3, reps: "12 cada", restSecs: 60 },
+        ],
+      },
+      {
+        dayOfWeek: 4,
+        name: "Pernas — Completo",
+        muscleGroup: "pernas",
+        exercises: [
+          { name: "Agachamento Livre", sets: 5, reps: "10-12", restSecs: 120 },
+          { name: "Leg Press 45°", sets: 4, reps: "15", restSecs: 90 },
+          { name: "Extensora", sets: 4, reps: "15-20", restSecs: 60 },
+          { name: "Mesa Flexora", sets: 4, reps: "12-15", restSecs: 75 },
+          { name: "Stiff com Barra", sets: 3, reps: "12", restSecs: 75 },
+          { name: "Panturrilha Leg Press", sets: 5, reps: "20", restSecs: 45 },
+        ],
+      },
+      {
+        dayOfWeek: 5,
+        name: "Braços — Bíceps + Tríceps",
+        muscleGroup: "bracos",
+        exercises: [
+          { name: "Rosca Direta com Barra", sets: 4, reps: "10", restSecs: 75 },
+          { name: "Rosca Alternada com Halteres (Supinada)", sets: 4, reps: "12 cada", restSecs: 60 },
+          { name: "Rosca Concentrada", sets: 3, reps: "12 cada", restSecs: 60, notes: "Pico do bíceps" },
+          { name: "Tríceps Corda na Polia", sets: 4, reps: "15", restSecs: 60 },
+          { name: "Tríceps Francês Deitado (Skull Crusher)", sets: 4, reps: "10-12", restSecs: 75 },
+          { name: "Mergulho entre Bancos", sets: 3, reps: "15", restSecs: 60, notes: "Finalizador tríceps" },
+          { name: "Rosca 21s com Barra", sets: 3, reps: "21", restSecs: 75, notes: "7 baixo + 7 cima + 7 completo" },
+        ],
+      },
+    ],
+  },
+
+  // ─── Julio Balestrini ──────────────────────────────────────────────────────
+  {
+    id: "balestrini",
+    athleteName: "Julio Balestrini",
+    sport: "Fisiculturismo — Classic Physique IFBB",
+    description: "Protocolo voltado para o físico clássico — V-taper, proporção e separação muscular. 5 dias por semana.",
+    quote: "O físico clássico é a fusão entre força e arte.",
+    daysPerWeek: 5,
+    goal: "Proporção Clássica / V-Taper / Hipertrofia",
+    days: [
+      {
+        dayOfWeek: 1,
+        name: "Costas — Largura (V-Taper)",
+        muscleGroup: "costas",
+        exercises: [
+          { name: "Puxada Alta Pegada Pronada Aberta", sets: 5, reps: "8-12", restSecs: 90, notes: "Foco absoluto em lat" },
+          { name: "Barra Fixa Neutra", sets: 4, reps: "8-10", restSecs: 90 },
+          { name: "Puxada com Triângulo (Cabo)", sets: 4, reps: "12", restSecs: 75 },
+          { name: "Pull-over com Halter", sets: 4, reps: "12-15", restSecs: 60, notes: "Expansão de caixa torácica" },
+          { name: "Remada Sentado no Cabo", sets: 3, reps: "15", restSecs: 60 },
+        ],
+      },
+      {
+        dayOfWeek: 2,
+        name: "Peito + Ombros Frontais",
+        muscleGroup: "peito",
+        exercises: [
+          { name: "Supino Reto com Barra", sets: 4, reps: "8-10", restSecs: 90 },
+          { name: "Supino Inclinado com Barra", sets: 4, reps: "10", restSecs: 90 },
+          { name: "Crucifixo Inclinado com Halteres", sets: 3, reps: "12-15", restSecs: 60 },
+          { name: "Crossover de Cima para Baixo", sets: 3, reps: "15", restSecs: 60 },
+          { name: "Desenvolvimento com Barra (Frente)", sets: 4, reps: "10", restSecs: 90, notes: "Ombros frontais" },
+          { name: "Elevação Frontal com Anilha", sets: 3, reps: "15", restSecs: 60 },
+        ],
+      },
+      {
+        dayOfWeek: 3,
+        name: "Pernas — Quadríceps & Panturrilha",
+        muscleGroup: "pernas",
+        exercises: [
+          { name: "Agachamento Livre com Barra Alta", sets: 5, reps: "10", restSecs: 120 },
+          { name: "Leg Press 45° (Posição Fechada)", sets: 4, reps: "12-15", restSecs: 90, notes: "Ênfase em vasto lateral" },
+          { name: "Extensora Unilateral", sets: 3, reps: "15 cada", restSecs: 60, notes: "Separação e definição" },
+          { name: "Afundo com Barra (Step)", sets: 3, reps: "12 cada", restSecs: 75 },
+          { name: "Panturrilha em Pé (Máquina)", sets: 6, reps: "15", restSecs: 45 },
+          { name: "Panturrilha no Leg Press", sets: 4, reps: "20", restSecs: 45 },
+        ],
+      },
+      {
+        dayOfWeek: 4,
+        name: "Costas Espessura + Braços",
+        muscleGroup: "costas",
+        exercises: [
+          { name: "Levantamento Terra", sets: 4, reps: "5-8", restSecs: 180, notes: "Base de espessura" },
+          { name: "Remada Curvada com Barra", sets: 4, reps: "8-10", restSecs: 90 },
+          { name: "Serrote com Halter", sets: 4, reps: "10 cada", restSecs: 75 },
+          { name: "Rosca Direta com Barra", sets: 4, reps: "10", restSecs: 75 },
+          { name: "Rosca Spider (no Banco Inclinado)", sets: 3, reps: "12", restSecs: 60, notes: "Pico máximo de bíceps" },
+          { name: "Tríceps Testa com Barra EZ", sets: 4, reps: "10-12", restSecs: 75 },
+          { name: "Tríceps Corda no Cabo", sets: 3, reps: "15", restSecs: 60 },
+        ],
+      },
+      {
+        dayOfWeek: 5,
+        name: "Ombros Laterais + Posterior + Pernas Posterior",
+        muscleGroup: "ombros",
+        exercises: [
+          { name: "Elevação Lateral em Pé", sets: 5, reps: "15-20", restSecs: 60, notes: "V-taper — deltoides laterais" },
+          { name: "Elevação Lateral Deitado no Banco Inclinado", sets: 4, reps: "15", restSecs: 60 },
+          { name: "Face Pull com Corda", sets: 4, reps: "20", restSecs: 45 },
+          { name: "Stiff com Barra", sets: 4, reps: "10-12", restSecs: 90, notes: "Posterior de coxa" },
+          { name: "Mesa Flexora", sets: 3, reps: "12-15", restSecs: 75 },
+          { name: "Elevação Pélvica com Barra", sets: 3, reps: "15", restSecs: 75 },
+        ],
+      },
+    ],
+  },
+];
+
 export const LEVEL_COLORS: Record<WorkoutTemplate["level"], string> = {
   "Iniciante": "text-green-400 bg-green-400/10 border-green-400/30",
   "Intermediário": "text-blue-400 bg-blue-400/10 border-blue-400/30",

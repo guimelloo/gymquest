@@ -17,7 +17,7 @@ import {
 import { MuscleBadge } from "@/components/muscle-badge";
 import { ExerciseVideoButton } from "@/components/exercise-video-button";
 import { getExerciseMuscles, MUSCLE_GROUPS, MUSCLE_LABELS, type MuscleGroup } from "@/lib/exercises-db";
-import { WORKOUT_TEMPLATES, ATHLETE_TEMPLATES, LEVEL_COLORS, type WorkoutTemplate, type AthleteTemplate } from "@/lib/workout-templates";
+import { WORKOUT_TEMPLATES, ATHLETE_TEMPLATES, BODYBUILDER_TEMPLATES, LEVEL_COLORS, type WorkoutTemplate, type AthleteTemplate } from "@/lib/workout-templates";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -443,6 +443,27 @@ export default function TreinoPage() {
                   athlete={athl}
                   onApply={(a) => {
                     aplicarTemplate({ ...a, id: a.id, name: `${a.athleteName} — ${a.sport}`, description: a.description, level: "Intermediário" });
+                    setAbaAtiva("criar");
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* ── Fisiculturistas ── */}
+          <div className="pt-2">
+            <h2 className="text-sm font-bold flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              {t("workout.bodybuilder_templates")}
+            </h2>
+            <p className="text-xs text-muted-foreground mb-3">{t("workout.bodybuilder_sub")}</p>
+            <div className="space-y-3">
+              {BODYBUILDER_TEMPLATES.map((athl) => (
+                <AthleteCard
+                  key={athl.id}
+                  athlete={athl}
+                  onApply={(a) => {
+                    aplicarTemplate({ ...a, id: a.id, name: `${a.athleteName} — ${a.sport}`, description: a.description, level: "Avançado" });
                     setAbaAtiva("criar");
                   }}
                 />

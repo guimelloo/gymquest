@@ -15,6 +15,7 @@ const t = {
     "nav.workout": "Treino",
     "nav.progress": "Progresso",
     "nav.goals": "Metas",
+    "nav.analyze": "Análise",
     "nav.profile": "Perfil",
     "nav.logout": "Sair",
 
@@ -319,9 +320,11 @@ const t = {
     "profile.language_saved": "Idioma atualizado!",
     "profile.age": "Idade",
 
-    /* ── Workout: Athlete templates ── */
+    /* ── Workout: Athlete + Bodybuilder templates ── */
     "workout.athlete_templates": "Treinos Inspirados em Atletas",
     "workout.athlete_use": "Usar treino",
+    "workout.bodybuilder_templates": "Treinos de Fisiculturistas",
+    "workout.bodybuilder_sub": "Inspirado nos treinos de grandes nomes do fisiculturismo brasileiro",
 
     /* ── Water ── */
     "water.title": "Água Hoje",
@@ -329,6 +332,39 @@ const t = {
     "water.error": "Erro ao registrar água",
     "water.level_up": "Level Up! Você é nível {n}!",
     "water.goal_label": "Meta:",
+
+    /* ── Progress: charts ── */
+    "progress.chart_muscle": "Massa Muscular",
+    "progress.chart_combined": "Visão Geral",
+    "progress.navy_title": "Estimativa de Composição Corporal",
+    "progress.navy_method": "Método da Marinha (estimativa visual)",
+    "progress.navy_fat": "% Gordura Estimada",
+    "progress.navy_lean": "Massa Magra Estimada",
+    "progress.navy_needs_data": "Adicione peso + cintura para ver estimativa",
+    "progress.analyzer_cta": "Analisar Físico com IA",
+    "progress.analyzer_cta_sub": "Envie fotos e receba análise personalizada dos seus músculos",
+
+    /* ── Physique Analyzer ── */
+    "analyzer.title": "Analisador de Físico",
+    "analyzer.subtitle": "IA analisa suas fotos e aponta músculos para desenvolver",
+    "analyzer.info_1": "Envie até 4 fotos em poses diferentes (frente, costas, laterais) para uma análise completa.",
+    "analyzer.info_2": "As fotos são processadas pelo Claude AI e não são armazenadas.",
+    "analyzer.upload_prompt": "Toque para adicionar fotos",
+    "analyzer.upload_hint": "JPG, PNG ou HEIC · Máx 5 MB cada",
+    "analyzer.max_photos": "Máximo de 4 fotos permitido",
+    "analyzer.max_photos_badge": "Máx. 4 fotos",
+    "analyzer.invalid_file": "Formato de arquivo inválido",
+    "analyzer.file_too_large": "Arquivo muito grande (máx 5 MB)",
+    "analyzer.need_photo": "Adicione pelo menos uma foto",
+    "analyzer.add_photo": "Adicionar foto",
+    "analyzer.pose_guide": "Poses recomendadas:",
+    "analyzer.analyze_btn": "Analisar meu físico",
+    "analyzer.analyzing": "Analisando fotos...",
+    "analyzer.result_title": "Análise do seu Físico",
+    "analyzer.new_analysis": "Nova análise",
+    "analyzer.error": "Erro ao analisar. Tente novamente.",
+    "analyzer.key_missing": "API de IA não configurada. Configure ANTHROPIC_API_KEY.",
+    "analyzer.disclaimer": "Esta análise é gerada por IA e tem fins educacionais e motivacionais. Não substitui a avaliação de um profissional de educação física.",
   },
 
   // ─────────────────────────────────────── ENGLISH ──
@@ -344,6 +380,7 @@ const t = {
     "nav.workout": "Workout",
     "nav.progress": "Progress",
     "nav.goals": "Goals",
+    "nav.analyze": "Analyze",
     "nav.profile": "Profile",
     "nav.logout": "Logout",
 
@@ -639,12 +676,47 @@ const t = {
 
     "workout.athlete_templates": "Athlete-Inspired Workouts",
     "workout.athlete_use": "Use workout",
+    "workout.bodybuilder_templates": "Bodybuilder Workouts",
+    "workout.bodybuilder_sub": "Inspired by the training routines of top Brazilian bodybuilders",
 
     "water.title": "Water Today",
     "water.goal_reached": "Water goal reached! +15 XP 💧",
     "water.error": "Error logging water",
     "water.level_up": "Level Up! You are level {n}!",
     "water.goal_label": "Goal:",
+
+    /* ── Progress: charts ── */
+    "progress.chart_muscle": "Muscle Mass",
+    "progress.chart_combined": "Overview",
+    "progress.navy_title": "Body Composition Estimate",
+    "progress.navy_method": "Navy Method (visual estimate)",
+    "progress.navy_fat": "Estimated Body Fat %",
+    "progress.navy_lean": "Estimated Lean Mass",
+    "progress.navy_needs_data": "Add weight + waist to see estimate",
+    "progress.analyzer_cta": "Analyze Physique with AI",
+    "progress.analyzer_cta_sub": "Upload photos and get personalized muscle analysis",
+
+    /* ── Physique Analyzer ── */
+    "analyzer.title": "Physique Analyzer",
+    "analyzer.subtitle": "AI analyzes your photos and points out muscles to develop",
+    "analyzer.info_1": "Upload up to 4 photos in different poses (front, back, sides) for a complete analysis.",
+    "analyzer.info_2": "Photos are processed by Claude AI and are not stored.",
+    "analyzer.upload_prompt": "Tap to add photos",
+    "analyzer.upload_hint": "JPG, PNG or HEIC · Max 5 MB each",
+    "analyzer.max_photos": "Maximum of 4 photos allowed",
+    "analyzer.max_photos_badge": "Max. 4 photos",
+    "analyzer.invalid_file": "Invalid file format",
+    "analyzer.file_too_large": "File too large (max 5 MB)",
+    "analyzer.need_photo": "Add at least one photo",
+    "analyzer.add_photo": "Add photo",
+    "analyzer.pose_guide": "Recommended poses:",
+    "analyzer.analyze_btn": "Analyze my physique",
+    "analyzer.analyzing": "Analyzing photos...",
+    "analyzer.result_title": "Your Physique Analysis",
+    "analyzer.new_analysis": "New analysis",
+    "analyzer.error": "Analysis failed. Please try again.",
+    "analyzer.key_missing": "AI API not configured. Set ANTHROPIC_API_KEY.",
+    "analyzer.disclaimer": "This analysis is AI-generated for educational and motivational purposes only. It does not replace the assessment of a fitness professional.",
   },
 
   // ─────────────────────────────────────── DUTCH ──
@@ -660,6 +732,7 @@ const t = {
     "nav.workout": "Training",
     "nav.progress": "Voortgang",
     "nav.goals": "Doelen",
+    "nav.analyze": "Analyse",
     "nav.profile": "Profiel",
     "nav.logout": "Uitloggen",
 
@@ -955,12 +1028,47 @@ const t = {
 
     "workout.athlete_templates": "Atleet-geïnspireerde Trainingen",
     "workout.athlete_use": "Training gebruiken",
+    "workout.bodybuilder_templates": "Bodybuilder Trainingen",
+    "workout.bodybuilder_sub": "Geïnspireerd door de trainingsroutines van toonaangevende Braziliaanse bodybuilders",
 
     "water.title": "Water Vandaag",
     "water.goal_reached": "Waterdoel bereikt! +15 XP 💧",
     "water.error": "Fout bij registreren water",
     "water.level_up": "Level Up! U bent niveau {n}!",
     "water.goal_label": "Doel:",
+
+    /* ── Progress: charts ── */
+    "progress.chart_muscle": "Spiermassa",
+    "progress.chart_combined": "Overzicht",
+    "progress.navy_title": "Schatting Lichaamssamenstelling",
+    "progress.navy_method": "Marinemethode (visuele schatting)",
+    "progress.navy_fat": "Geschat vetpercentage",
+    "progress.navy_lean": "Geschatte vetvrije massa",
+    "progress.navy_needs_data": "Voeg gewicht + taille toe voor schatting",
+    "progress.analyzer_cta": "Lichaam analyseren met AI",
+    "progress.analyzer_cta_sub": "Upload foto's en ontvang gepersonaliseerde spieranalyse",
+
+    /* ── Physique Analyzer ── */
+    "analyzer.title": "Lichaamsanalyzer",
+    "analyzer.subtitle": "AI analyseert uw foto's en wijst spieren aan om te ontwikkelen",
+    "analyzer.info_1": "Upload tot 4 foto's in verschillende poses (voor, achter, zijkanten) voor een volledige analyse.",
+    "analyzer.info_2": "Foto's worden verwerkt door Claude AI en worden niet opgeslagen.",
+    "analyzer.upload_prompt": "Tik om foto's toe te voegen",
+    "analyzer.upload_hint": "JPG, PNG of HEIC · Max 5 MB elk",
+    "analyzer.max_photos": "Maximaal 4 foto's toegestaan",
+    "analyzer.max_photos_badge": "Max. 4 foto's",
+    "analyzer.invalid_file": "Ongeldig bestandsformaat",
+    "analyzer.file_too_large": "Bestand te groot (max 5 MB)",
+    "analyzer.need_photo": "Voeg minimaal één foto toe",
+    "analyzer.add_photo": "Foto toevoegen",
+    "analyzer.pose_guide": "Aanbevolen poses:",
+    "analyzer.analyze_btn": "Analyseer mijn lichaam",
+    "analyzer.analyzing": "Foto's analyseren...",
+    "analyzer.result_title": "Uw Lichaamsanalyse",
+    "analyzer.new_analysis": "Nieuwe analyse",
+    "analyzer.error": "Analyse mislukt. Probeer opnieuw.",
+    "analyzer.key_missing": "AI API niet geconfigureerd. Stel ANTHROPIC_API_KEY in.",
+    "analyzer.disclaimer": "Deze analyse is gegenereerd door AI voor educatieve en motiverende doeleinden. Het vervangt niet de beoordeling van een fitnessprofessional.",
   },
 } as const;
 

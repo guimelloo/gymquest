@@ -14,6 +14,7 @@ import {
   UserCircle,
   LogOut,
   Sword,
+  Sparkles,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/context";
 
@@ -28,6 +29,7 @@ export function AppNav() {
     { href: "/treino",     icon: Dumbbell,         labelKey: "nav.workout"  as const },
     { href: "/progresso",  icon: TrendingUp,       labelKey: "nav.progress" as const },
     { href: "/metas",      icon: Target,           labelKey: "nav.goals"    as const },
+    { href: "/analise",    icon: Sparkles,         labelKey: "nav.analyze"  as const },
     { href: "/perfil",     icon: UserCircle,       labelKey: "nav.profile"  as const },
   ];
 

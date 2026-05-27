@@ -16,9 +16,10 @@ import { ptBR } from "date-fns/locale";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
+import Link from "next/link";
 import {
   Scale, BarChart2, Ruler, TrendingUp, TrendingDown,
-  ClipboardList, Plus, CheckCircle2,
+  ClipboardList, Plus, CheckCircle2, Dumbbell, Sparkles, ChevronRight,
 } from "lucide-react";
 
 interface Medida {
@@ -115,7 +116,22 @@ export default function ProgressoPage() {
     peso: m.weight,
     gordura: m.bodyFat,
     cintura: m.waist,
+    musculo: m.muscleMass,
   }));
+
+  // Body fat estimate via US Navy waist formula (simplified — no neck measurement required)
+  // Male formula: 86.010*log10(waist) - 70.041*log10(height) + 36.76
+  const navyFat = (() => {
+    if (!ultimaMedida?.waist || !profile.height) return null;
+    const waist = ultimaMedida.waist;
+    const height = profile.height;
+    const val = 86.01 * Math.log10(waist) - 70.041 * Math.log10(height) + 36.76;
+    return Math.max(3, Math.min(60, Math.round(val * 10) / 10));
+  })();
+
+  const navyLean = navyFat && ultimaMedida
+    ? ultimaMedida.weight * (1 - navyFat / 100)
+    : null;
 
   if (loading) return <div className="p-6 text-center text-muted-foreground">{t("common.loading")}</div>;
 
@@ -193,13 +209,57 @@ export default function ProgressoPage() {
         </div>
       )}
 
+      {/* ── Analyzer CTA ── */}
+      <Link href="/analise">
+        <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-purple-500/5 hover:border-primary/40 transition-colors cursor-pointer">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">{t("progress.analyzer_cta")}</p>
+                  <p className="text-xs text-muted-foreground">{t("progress.analyzer_cta_sub")}</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+
+      {/* ── Navy Method body composition estimate ── */}
+      {navyFat !== null && navyLean !== null && (
+        <Card className="border-border/50">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Dumbbell className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-semibold">{t("progress.navy_title")}</span>
+              <span className="text-xs text-muted-foreground ml-auto">{t("progress.navy_method")}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-secondary/40 rounded-lg p-3">
+                <div className="text-xl font-bold text-orange-400">{navyFat.toFixed(1)}%</div>
+                <div className="text-xs text-muted-foreground">{t("progress.navy_fat")}</div>
+              </div>
+              <div className="bg-secondary/40 rounded-lg p-3">
+                <div className="text-xl font-bold text-blue-400">{navyLean.toFixed(1)} kg</div>
+                <div className="text-xs text-muted-foreground">{t("progress.navy_lean")}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Gráficos */}
       {chartData.length >= 2 && (
         <Tabs defaultValue="peso">
-          <TabsList>
+          <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="peso">{t("common.weight")}</TabsTrigger>
             <TabsTrigger value="gordura">{t("common.fat")}</TabsTrigger>
             <TabsTrigger value="cintura">{t("progress.waist")}</TabsTrigger>
+            <TabsTrigger value="musculo">{t("progress.chart_muscle")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="peso">
@@ -275,6 +335,36 @@ export default function ProgressoPage() {
                         formatter={(v) => [`${Number(v ?? 0).toFixed(1)} ${t("common.cm")}`, t("progress.waist")]}
                       />
                       <Line type="monotone" dataKey="cintura" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground text-sm">
+                    {t("progress.no_records_hint")}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="musculo">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4 text-blue-400" /> {t("progress.chart_muscle")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {chartData.some((d) => d.musculo) ? (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
+                      <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
+                      <Tooltip
+                        contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
+                        formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`, t("progress.chart_muscle")]}
+                      />
+                      <Line type="monotone" dataKey="musculo" stroke="#60a5fa" strokeWidth={2} dot={{ r: 3 }} connectNulls />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (

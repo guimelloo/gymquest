@@ -29,7 +29,11 @@
       "Bash(vercel *)",
       "Bash(npm show *)",
       "Bash(curl *)",
-      "Bash(git commit -m 'feat: workout templates, athlete workouts, water fix, expanded food db, translation polish *)"
+      "Bash(git commit -m 'feat: workout templates, athlete workouts, water fix, expanded food db, translation polish *)",
+      "Bash(git push *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('dependencies',{}\\), indent=2\\)\\)\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(git commit -m 'feat: bodybuilder templates \\(Ganley/Cariani/Balestrini\\), AI physique analyzer, enhanced progress charts *)"
     ]
   }
 }
