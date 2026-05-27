@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/i18n/context";
 import { calcularIMC, classificarIMC } from "@/lib/calculations";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -38,6 +39,7 @@ interface UserProfile {
 }
 
 export default function ProgressoPage() {
+  const { t } = useLanguage();
   const [medidas, setMedidas] = useState<Medida[]>([]);
   const [profile, setProfile] = useState<UserProfile>({ height: null, gender: null });
   const [loading, setLoading] = useState(true);
@@ -84,8 +86,8 @@ export default function ProgressoPage() {
       const data = await res.json();
       if (!res.ok) { toast.error(data.error); return; }
 
-      toast.success("Medida registrada! +10 XP");
-      if (data.xp?.levelUp) toast.success(`Level Up! Nível ${data.xp.levelAtual}!`);
+      toast.success(t("progress.saved"));
+      if (data.xp?.levelUp) toast.success(t("workout.level_up", { n: data.xp.levelAtual }));
       if (data.xp?.conquistasDesbloqueadas?.length > 0) {
         data.xp.conquistasDesbloqueadas.forEach((c: string) => toast.success(c));
       }
@@ -96,7 +98,7 @@ export default function ProgressoPage() {
       const m = await fetch("/api/medidas?limit=30").then((r) => r.json());
       setMedidas(Array.isArray(m) ? m : []);
     } catch {
-      toast.error("Erro ao salvar");
+      toast.error(t("progress.error_save"));
     } finally {
       setSaving(false);
     }
@@ -115,7 +117,7 @@ export default function ProgressoPage() {
     cintura: m.waist,
   }));
 
-  if (loading) return <div className="p-6 text-center text-muted-foreground">Carregando...</div>;
+  if (loading) return <div className="p-6 text-center text-muted-foreground">{t("common.loading")}</div>;
 
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
@@ -136,7 +138,7 @@ export default function ProgressoPage() {
             <CardContent className="pt-4 pb-4">
               <Scale className="w-4 h-4 text-primary mb-1" />
               <div className="text-xl font-bold">{ultimaMedida.weight} kg</div>
-              <div className="text-xs text-muted-foreground">Peso atual</div>
+              <div className="text-xs text-muted-foreground">{t("progress.weight")}</div>
               {medidas.length >= 2 && (() => {
                 const diff = ultimaMedida.weight - medidas[1].weight;
                 return (
@@ -154,7 +156,7 @@ export default function ProgressoPage() {
               <CardContent className="pt-4 pb-4">
                 <BarChart2 className="w-4 h-4 text-blue-400 mb-1" />
                 <div className="text-xl font-bold">{imc.toFixed(1)}</div>
-                <div className="text-xs text-muted-foreground">IMC</div>
+                <div className="text-xs text-muted-foreground">{t("progress.bmi")}</div>
                 {imcInfo && <div className={`text-xs mt-1 ${imcInfo.color}`}>{imcInfo.label}</div>}
               </CardContent>
             </Card>
@@ -165,7 +167,7 @@ export default function ProgressoPage() {
               <CardContent className="pt-4 pb-4">
                 <TrendingDown className="w-4 h-4 text-orange-400 mb-1" />
                 <div className="text-xl font-bold">{ultimaMedida.bodyFat}%</div>
-                <div className="text-xs text-muted-foreground">Gordura corporal</div>
+                <div className="text-xs text-muted-foreground">{t("common.fat")}</div>
                 {medidas.length >= 2 && medidas[1].bodyFat && (() => {
                   const diff = ultimaMedida.bodyFat! - medidas[1].bodyFat!;
                   return (
@@ -184,7 +186,7 @@ export default function ProgressoPage() {
               <CardContent className="pt-4 pb-4">
                 <Ruler className="w-4 h-4 text-purple-400 mb-1" />
                 <div className="text-xl font-bold">{ultimaMedida.waist} cm</div>
-                <div className="text-xs text-muted-foreground">Cintura</div>
+                <div className="text-xs text-muted-foreground">{t("progress.waist")}</div>
               </CardContent>
             </Card>
           )}
@@ -195,16 +197,16 @@ export default function ProgressoPage() {
       {chartData.length >= 2 && (
         <Tabs defaultValue="peso">
           <TabsList>
-            <TabsTrigger value="peso">Peso</TabsTrigger>
-            <TabsTrigger value="gordura">Gordura</TabsTrigger>
-            <TabsTrigger value="cintura">Cintura</TabsTrigger>
+            <TabsTrigger value="peso">{t("common.weight")}</TabsTrigger>
+            <TabsTrigger value="gordura">{t("common.fat")}</TabsTrigger>
+            <TabsTrigger value="cintura">{t("progress.waist")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="peso">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-primary" /> Evolução do Peso
+                  <Scale className="w-4 h-4 text-primary" /> {t("progress.weight_chart")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -215,7 +217,7 @@ export default function ProgressoPage() {
                     <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
                     <Tooltip
                       contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
-                      formatter={(v) => [`${Number(v ?? 0).toFixed(1)} kg`, "Peso"]}
+                      formatter={(v) => [`${Number(v ?? 0).toFixed(1)} ${t("common.kg")}`, t("common.weight")]}
                     />
                     <Line type="monotone" dataKey="peso" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
                   </LineChart>
@@ -228,7 +230,7 @@ export default function ProgressoPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <TrendingDown className="w-4 h-4 text-orange-400" /> % de Gordura Corporal
+                  <TrendingDown className="w-4 h-4 text-orange-400" /> % {t("common.fat")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -240,14 +242,14 @@ export default function ProgressoPage() {
                       <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
                       <Tooltip
                         contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
-                        formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`, "Gordura"]}
+                        formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`, t("common.fat")]}
                       />
                       <Line type="monotone" dataKey="gordura" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} connectNulls />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground text-sm">
-                    Registre o % de gordura para ver o gráfico
+                    {t("progress.no_records_hint")}
                   </div>
                 )}
               </CardContent>
@@ -258,7 +260,7 @@ export default function ProgressoPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Ruler className="w-4 h-4 text-purple-400" /> Medida da Cintura
+                  <Ruler className="w-4 h-4 text-purple-400" /> {t("progress.waist")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -270,14 +272,14 @@ export default function ProgressoPage() {
                       <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
                       <Tooltip
                         contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
-                        formatter={(v) => [`${Number(v ?? 0).toFixed(1)} cm`, "Cintura"]}
+                        formatter={(v) => [`${Number(v ?? 0).toFixed(1)} ${t("common.cm")}`, t("progress.waist")]}
                       />
                       <Line type="monotone" dataKey="cintura" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} connectNulls />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground text-sm">
-                    Registre a medida da cintura para ver o gráfico
+                    {t("progress.no_records_hint")}
                   </div>
                 )}
               </CardContent>
@@ -289,13 +291,13 @@ export default function ProgressoPage() {
       {/* Histórico */}
       <div>
         <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <ClipboardList className="w-5 h-5 text-muted-foreground" /> Histórico
+          <ClipboardList className="w-5 h-5 text-muted-foreground" /> {t("progress.history")}
         </h2>
         {medidas.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <BarChart2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>Nenhuma medida registrada</p>
-            <p className="text-sm mt-1">Clique em "Registrar" para começar</p>
+            <p>{t("progress.no_records")}</p>
+            <p className="text-sm mt-1">{t("progress.no_records_hint")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -315,7 +317,7 @@ export default function ProgressoPage() {
                             </span>
                           );
                         })()}
-                        {idx === 0 && <Badge variant="outline" className="text-xs">Atual</Badge>}
+                        {idx === 0 && <Badge variant="outline" className="text-xs">{t("common.today_excl")}</Badge>}
                       </div>
                       <div className="flex gap-3 text-xs text-muted-foreground mt-1">
                         {m.bodyFat && <span>Gordura: {m.bodyFat}%</span>}
@@ -340,49 +342,49 @@ export default function ProgressoPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <BarChart2 className="w-5 h-5 text-primary" /> Registrar Medidas
+              <BarChart2 className="w-5 h-5 text-primary" /> {t("progress.modal_title")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Peso (kg) *</Label>
+                <Label>{t("progress.weight")} *</Label>
                 <Input type="number" step="0.1" placeholder="82.5" value={form.weight}
                   onChange={(e) => setForm((f) => ({ ...f, weight: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <Label>Gordura (%)</Label>
+                <Label>{t("progress.body_fat")}</Label>
                 <Input type="number" step="0.1" placeholder="13" value={form.bodyFat}
                   onChange={(e) => setForm((f) => ({ ...f, bodyFat: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <Label>Massa muscular (%)</Label>
+                <Label>{t("progress.muscle_mass")}</Label>
                 <Input type="number" step="0.1" placeholder="40" value={form.muscleMass}
                   onChange={(e) => setForm((f) => ({ ...f, muscleMass: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <Label>Cintura (cm)</Label>
+                <Label>{t("progress.waist")}</Label>
                 <Input type="number" step="0.5" placeholder="85" value={form.waist}
                   onChange={(e) => setForm((f) => ({ ...f, waist: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <Label>Peitoral (cm)</Label>
+                <Label>{t("progress.chest")}</Label>
                 <Input type="number" step="0.5" placeholder="100" value={form.chest}
                   onChange={(e) => setForm((f) => ({ ...f, chest: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <Label>Quadril (cm)</Label>
+                <Label>{t("progress.hips")}</Label>
                 <Input type="number" step="0.5" placeholder="95" value={form.hips}
                   onChange={(e) => setForm((f) => ({ ...f, hips: e.target.value }))} />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Observações</Label>
+              <Label>{t("common.notes")}</Label>
               <Input placeholder="Como está se sentindo?" value={form.notes}
                 onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
             </div>
             <Button onClick={salvarMedida} disabled={saving} className="w-full gap-1.5">
-              {saving ? "Salvando..." : <><CheckCircle2 className="w-4 h-4" /> Salvar +10 XP</>}
+              {saving ? t("common.saving") : <><CheckCircle2 className="w-4 h-4" /> {t("progress.save_btn")}</>
             </Button>
           </div>
         </DialogContent>
