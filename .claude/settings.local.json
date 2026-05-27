@@ -15,7 +15,20 @@
       "Bash(npm run *)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'feat: GymQuest - app fitness gamificado completo *)"
+      "Bash(git commit -m 'feat: GymQuest - app fitness gamificado completo *)",
+      "Bash(openssl rand *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/register -H 'Content-Type: application/json' -d '{\"name\":\"Guilherme\",\"email\":\"guilhermedemelonegromonte@gmail.com\",\"password\":\"senha123\"}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s \"http://localhost:3000/api/alimentos?q=frango\")",
+      "Bash(python3 -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(node *)",
+      "Bash(npm list *)",
+      "Bash(vercel whoami *)",
+      "Bash(vercel *)",
+      "Bash(npm show *)",
+      "Bash(curl *)"
     ]
   }
 }

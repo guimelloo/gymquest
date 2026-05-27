@@ -3,11 +3,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { calcularNivel } from "@/lib/gamification";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
-  const today = new Date().toISOString().split("T")[0];
+  // Use client-supplied local date so timezone differences don't shift the day
+  const { searchParams } = new URL(request.url);
+  const today = searchParams.get("today") || new Date().toISOString().split("T")[0];
 
   const [user, ultimaMedida, logHoje, refeicoesHoje, treinosRecentes, metasAtivas] =
     await Promise.all([

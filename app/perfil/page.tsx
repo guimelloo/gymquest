@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,10 @@ import { calcularNivel, getTitulo, getCorRaridade } from "@/lib/gamification";
 import { calcularIMC, classificarIMC, calcularIdade } from "@/lib/calculations";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import {
+  Crown, Star, Shield, Flame, Zap, Trophy,
+  UserCircle, Pencil, LogOut, Dumbbell,
+} from "lucide-react";
 
 interface UserProfile {
   name: string;
@@ -45,6 +49,20 @@ interface UserProfile {
     };
   }>;
 }
+
+function LevelIcon({ nivel }: { nivel: number }) {
+  if (nivel >= 30) return <Crown className="w-8 h-8 text-yellow-400" />;
+  if (nivel >= 20) return <Star className="w-8 h-8 text-purple-400" />;
+  if (nivel >= 10) return <Shield className="w-8 h-8 text-blue-400" />;
+  return <Shield className="w-8 h-8 text-gray-400" />;
+}
+
+const RARIDADE_INFO: Record<string, { label: string; Icon: React.ComponentType<{ className?: string }> }> = {
+  lendario: { label: "Lendário", Icon: Crown },
+  epico:    { label: "Épico",    Icon: Star },
+  raro:     { label: "Raro",     Icon: Shield },
+  comum:    { label: "Comum",    Icon: Trophy },
+};
 
 export default function PerfilPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -92,10 +110,9 @@ export default function PerfilPage() {
       });
       if (!res.ok) { toast.error("Erro ao salvar"); return; }
 
-      toast.success("✅ Perfil atualizado!");
+      toast.success("Perfil atualizado!");
       setEditMode(false);
 
-      // Recarregar
       const updated = await fetch("/api/user/profile").then((r) => r.json());
       setProfile(updated);
     } catch {
@@ -111,25 +128,21 @@ export default function PerfilPage() {
   const { levelInfo } = profile;
   const titulo = getTitulo(levelInfo.nivel);
   const idade = profile.birthDate ? calcularIdade(new Date(profile.birthDate)) : null;
-  const imc = profile.height && profile.level > 0
-    ? null
-    : null;
-
-  // Calcular IMC a partir da última medida (via profile não temos, mas podemos estimar)
   const membroDesde = format(new Date(profile.createdAt), "MMMM yyyy", { locale: ptBR });
-
   const raridades = ["lendario", "epico", "raro", "comum"];
 
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">👤 Perfil</h1>
+      <h1 className="text-2xl font-bold flex items-center gap-2">
+        <UserCircle className="w-6 h-6 text-primary" /> Perfil
+      </h1>
 
       {/* Player Card */}
       <Card className="border-primary/20 bg-gradient-to-br from-card to-secondary/20">
         <CardContent className="pt-5">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-3xl flex-shrink-0">
-              {levelInfo.nivel >= 30 ? "👑" : levelInfo.nivel >= 20 ? "🌟" : levelInfo.nivel >= 10 ? "⚔️" : "🛡️"}
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <LevelIcon nivel={levelInfo.nivel} />
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-bold">{profile.name}</h2>
@@ -139,15 +152,17 @@ export default function PerfilPage() {
                   Nível {levelInfo.nivel} — {titulo}
                 </Badge>
                 {profile.streak > 0 && (
-                  <Badge variant="outline" className="text-orange-400 border-orange-400/50 text-xs">
-                    🔥 {profile.streak} dias
+                  <Badge variant="outline" className="text-orange-400 border-orange-400/50 text-xs gap-1">
+                    <Flame className="w-3 h-3" /> {profile.streak} dias
                   </Badge>
                 )}
               </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-primary">{profile.xp.toLocaleString()}</div>
-              <div className="text-xs text-muted-foreground">XP Total</div>
+              <div className="text-xs text-muted-foreground flex items-center justify-end gap-1">
+                <Zap className="w-3 h-3 text-yellow-400" /> XP Total
+              </div>
             </div>
           </div>
 
@@ -168,15 +183,24 @@ export default function PerfilPage() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 mt-4">
             <div className="text-center">
-              <div className="text-lg font-bold">{profile.totalWorkouts}</div>
+              <div className="text-lg font-bold flex items-center justify-center gap-1">
+                <Dumbbell className="w-4 h-4 text-blue-400" />
+                {profile.totalWorkouts}
+              </div>
               <div className="text-xs text-muted-foreground">Treinos</div>
             </div>
             <div className="text-center border-x border-border">
-              <div className="text-lg font-bold">{profile.streak}</div>
+              <div className="text-lg font-bold flex items-center justify-center gap-1">
+                <Flame className="w-4 h-4 text-orange-400" />
+                {profile.streak}
+              </div>
               <div className="text-xs text-muted-foreground">Streak</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-bold">{profile.achievements.length}</div>
+              <div className="text-lg font-bold flex items-center justify-center gap-1">
+                <Trophy className="w-4 h-4 text-yellow-400" />
+                {profile.achievements.length}
+              </div>
               <div className="text-xs text-muted-foreground">Conquistas</div>
             </div>
           </div>
@@ -185,15 +209,19 @@ export default function PerfilPage() {
 
       <Tabs defaultValue="conquistas">
         <TabsList className="w-full">
-          <TabsTrigger value="conquistas" className="flex-1">🏆 Conquistas</TabsTrigger>
-          <TabsTrigger value="dados" className="flex-1">📋 Dados</TabsTrigger>
+          <TabsTrigger value="conquistas" className="flex-1 gap-1.5">
+            <Trophy className="w-4 h-4" /> Conquistas
+          </TabsTrigger>
+          <TabsTrigger value="dados" className="flex-1 gap-1.5">
+            <UserCircle className="w-4 h-4" /> Dados
+          </TabsTrigger>
         </TabsList>
 
         {/* Conquistas */}
         <TabsContent value="conquistas" className="space-y-4 mt-4">
           {profile.achievements.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <div className="text-4xl mb-2">🏆</div>
+              <Trophy className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p>Nenhuma conquista ainda</p>
               <p className="text-sm mt-1">Complete missões e ações para desbloquear conquistas</p>
             </div>
@@ -205,11 +233,13 @@ export default function PerfilPage() {
               {raridades.map((raridade) => {
                 const list = profile.achievements.filter((a) => a.achievement.rarity === raridade);
                 if (list.length === 0) return null;
-                const nomes = { lendario: "🌟 Lendário", epico: "💜 Épico", raro: "💙 Raro", comum: "⚪ Comum" };
+                const info = RARIDADE_INFO[raridade];
+                const RIcon = info?.Icon ?? Trophy;
                 return (
                   <div key={raridade}>
-                    <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
-                      {nomes[raridade as keyof typeof nomes]}
+                    <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                      <RIcon className="w-3.5 h-3.5" />
+                      {info?.label ?? raridade}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {list.map((ua) => (
@@ -221,7 +251,9 @@ export default function PerfilPage() {
                               <p className="text-xs text-muted-foreground truncate">{ua.achievement.description}</p>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <div className="text-xs text-yellow-400">+{ua.achievement.xpReward}</div>
+                              <div className="text-xs text-yellow-400 flex items-center gap-0.5">
+                                <Zap className="w-3 h-3" />+{ua.achievement.xpReward}
+                              </div>
                               <div className="text-xs text-muted-foreground">
                                 {format(new Date(ua.earnedAt), "d/MM", { locale: ptBR })}
                               </div>
@@ -243,52 +275,25 @@ export default function PerfilPage() {
             <>
               <Card>
                 <CardContent className="pt-4 space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Nome</span>
-                    <span className="text-sm font-medium">{profile.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Email</span>
-                    <span className="text-sm">{profile.email}</span>
-                  </div>
-                  {profile.height && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Altura</span>
-                      <span className="text-sm font-medium">{profile.height} cm</span>
-                    </div>
-                  )}
-                  {idade && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Idade</span>
-                      <span className="text-sm font-medium">{idade} anos</span>
-                    </div>
-                  )}
-                  {profile.gender && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Sexo</span>
-                      <span className="text-sm font-medium">{profile.gender === "male" ? "Masculino" : "Feminino"}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Meta de água</span>
-                    <span className="text-sm font-medium">{profile.waterGoal} ml/dia</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Membro desde</span>
-                    <span className="text-sm capitalize">{membroDesde}</span>
-                  </div>
+                  <InfoRow label="Nome"          value={profile.name} />
+                  <InfoRow label="Email"         value={profile.email} />
+                  {profile.height && <InfoRow label="Altura" value={`${profile.height} cm`} />}
+                  {idade && <InfoRow label="Idade" value={`${idade} anos`} />}
+                  {profile.gender && <InfoRow label="Sexo" value={profile.gender === "male" ? "Masculino" : "Feminino"} />}
+                  <InfoRow label="Meta de água"  value={`${profile.waterGoal} ml/dia`} />
+                  <InfoRow label="Membro desde"  value={membroDesde} capitalize />
                 </CardContent>
               </Card>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setEditMode(true)} className="flex-1">
-                  ✏️ Editar perfil
+                <Button variant="outline" onClick={() => setEditMode(true)} className="flex-1 gap-1.5">
+                  <Pencil className="w-4 h-4" /> Editar perfil
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="flex-1 text-destructive hover:bg-destructive/10"
+                  className="flex-1 text-destructive hover:bg-destructive/10 gap-1.5"
                 >
-                  🚪 Sair
+                  <LogOut className="w-4 h-4" /> Sair
                 </Button>
               </div>
             </>
@@ -339,6 +344,15 @@ export default function PerfilPage() {
           )}
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function InfoRow({ label, value, capitalize }: { label: string; value: string; capitalize?: boolean }) {
+  return (
+    <div className="flex justify-between">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className={`text-sm font-medium ${capitalize ? "capitalize" : ""}`}>{value}</span>
     </div>
   );
 }

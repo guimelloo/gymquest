@@ -8,17 +8,27 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-
-const STEPS = [
-  { id: 1, title: "Dados Físicos", emoji: "📏", subtitle: "Para cálculos precisos de IMC e metabolismo" },
-  { id: 2, title: "Medidas Iniciais", emoji: "⚖️", subtitle: "Seu ponto de partida na jornada" },
-  { id: 3, title: "Meta Principal", emoji: "🎯", subtitle: "O que você quer conquistar?" },
-];
+import { Ruler, Scale, Target, Flame, Dumbbell, ChevronRight, Rocket } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/context";
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  const STEPS = [
+    { id: 1, titleKey: "onboarding.step1_title" as const, subtitleKey: "onboarding.step1_sub" as const, Icon: Ruler },
+    { id: 2, titleKey: "onboarding.step2_title" as const, subtitleKey: "onboarding.step2_sub" as const, Icon: Scale },
+    { id: 3, titleKey: "onboarding.step3_title" as const, subtitleKey: "onboarding.step3_sub" as const, Icon: Target },
+  ];
+
+  const TIPOS_META = [
+    { v: "bodyFat", lKey: "goals.type_fat"     as const, u: "%",      Icon: Flame },
+    { v: "weight",  lKey: "goals.type_weight"  as const, u: "kg",     Icon: Scale },
+    { v: "muscle",  lKey: "goals.type_muscle"  as const, u: "%",      Icon: Dumbbell },
+    { v: "streak",  lKey: "goals.type_streak"  as const, u: "dias",   Icon: Flame },
+  ];
 
   const [profile, setProfile] = useState({
     height: "",
@@ -58,14 +68,14 @@ export default function OnboardingPage() {
       });
       setStep(2);
     } catch {
-      toast.error("Erro ao salvar perfil");
+      toast.error(t("onboarding.error_save"));
     } finally {
       setLoading(false);
     }
   };
 
   const handleMedidasSave = async () => {
-    if (!medidas.weight) { toast.error("Informe seu peso"); return; }
+    if (!medidas.weight) { toast.error(t("onboarding.error_weight")); return; }
     setLoading(true);
     try {
       await fetch("/api/medidas", {
@@ -77,13 +87,12 @@ export default function OnboardingPage() {
           waist: medidas.waist ? parseFloat(medidas.waist) : undefined,
         }),
       });
-      // Pré-preencher meta com valor inicial
       if (medidas.bodyFat) {
-        setMeta((m) => ({ ...m, startValue: medidas.bodyFat, currentValue: medidas.bodyFat }));
+        setMeta((m) => ({ ...m, startValue: medidas.bodyFat }));
       }
       setStep(3);
     } catch {
-      toast.error("Erro ao salvar medidas");
+      toast.error(t("onboarding.error_save"));
     } finally {
       setLoading(false);
     }
@@ -91,7 +100,6 @@ export default function OnboardingPage() {
 
   const handleMetaSave = async () => {
     if (!meta.title || !meta.targetValue) {
-      // Pular meta e ir pro dashboard
       router.push("/dashboard");
       return;
     }
@@ -112,16 +120,17 @@ export default function OnboardingPage() {
           xpReward: 300,
         }),
       });
-      toast.success("Missão criada! Vamos lá! 🚀");
+      toast.success(t("onboarding.mission_created"));
       router.push("/dashboard");
     } catch {
-      toast.error("Erro ao criar meta");
+      toast.error(t("onboarding.error_save"));
     } finally {
       setLoading(false);
     }
   };
 
   const currentStep = STEPS[step - 1];
+  const StepIcon = currentStep.Icon;
   const progress = ((step - 1) / STEPS.length) * 100;
 
   return (
@@ -129,15 +138,17 @@ export default function OnboardingPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">{currentStep.emoji}</div>
-          <h1 className="text-2xl font-bold">{currentStep.title}</h1>
-          <p className="text-muted-foreground mt-1">{currentStep.subtitle}</p>
+          <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center mx-auto mb-3">
+            <StepIcon className="w-8 h-8 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold">{t(currentStep.titleKey)}</h1>
+          <p className="text-muted-foreground mt-1">{t(currentStep.subtitleKey)}</p>
         </div>
 
         {/* Progress */}
         <div className="mb-6">
           <div className="flex justify-between text-xs text-muted-foreground mb-2">
-            <span>Passo {step} de {STEPS.length}</span>
+            <span>{t("onboarding.step_of", { n: step, total: STEPS.length })}</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -149,7 +160,7 @@ export default function OnboardingPage() {
             {step === 1 && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Altura (cm)</Label>
+                  <Label>{t("onboarding.height")}</Label>
                   <Input
                     type="number"
                     placeholder="Ex: 183"
@@ -158,7 +169,7 @@ export default function OnboardingPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Data de nascimento</Label>
+                  <Label>{t("onboarding.birth_date")}</Label>
                   <Input
                     type="date"
                     value={profile.birthDate}
@@ -166,9 +177,9 @@ export default function OnboardingPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Sexo</Label>
+                  <Label>{t("onboarding.sex")}</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    {[{ v: "male", l: "🙋‍♂️ Masculino" }, { v: "female", l: "🙋‍♀️ Feminino" }].map((g) => (
+                    {[{ v: "male", lKey: "common.male" as const }, { v: "female", lKey: "common.female" as const }].map((g) => (
                       <button
                         key={g.v}
                         type="button"
@@ -179,29 +190,29 @@ export default function OnboardingPage() {
                             : "border-border hover:border-primary/50"
                         }`}
                       >
-                        {g.l}
+                        {t(g.lKey)}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Meta diária de água (ml)</Label>
+                  <Label>{t("onboarding.water_goal")}</Label>
                   <Input
                     type="number"
                     placeholder="2500"
                     value={profile.waterGoal}
                     onChange={(e) => setProfile((p) => ({ ...p, waterGoal: e.target.value }))}
                   />
-                  <p className="text-xs text-muted-foreground">Recomendado: 2000-3000 ml/dia</p>
+                  <p className="text-xs text-muted-foreground">{t("onboarding.water_rec")}</p>
                 </div>
-                <Button onClick={handleProfileSave} disabled={loading} className="w-full">
-                  {loading ? "Salvando..." : "Continuar →"}
+                <Button onClick={handleProfileSave} disabled={loading} className="w-full gap-1.5">
+                  {loading ? t("common.saving") : <><ChevronRight className="w-4 h-4" /> {t("common.continue")}</>}
                 </Button>
                 <button
                   onClick={() => setStep(2)}
                   className="w-full text-sm text-muted-foreground hover:text-foreground"
                 >
-                  Pular por agora
+                  {t("common.skip_now")}
                 </button>
               </div>
             )}
@@ -210,7 +221,7 @@ export default function OnboardingPage() {
             {step === 2 && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Peso atual (kg) *</Label>
+                  <Label>{t("onboarding.current_weight")}</Label>
                   <Input
                     type="number"
                     step="0.1"
@@ -220,7 +231,7 @@ export default function OnboardingPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>% de gordura corporal (opcional)</Label>
+                  <Label>{t("onboarding.body_fat")}</Label>
                   <Input
                     type="number"
                     step="0.1"
@@ -228,12 +239,10 @@ export default function OnboardingPage() {
                     value={medidas.bodyFat}
                     onChange={(e) => setMedidas((m) => ({ ...m, bodyFat: e.target.value }))}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Se não souber, pode deixar em branco
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t("onboarding.body_fat_hint")}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Cintura (cm, opcional)</Label>
+                  <Label>{t("onboarding.waist")}</Label>
                   <Input
                     type="number"
                     step="0.5"
@@ -242,8 +251,8 @@ export default function OnboardingPage() {
                     onChange={(e) => setMedidas((m) => ({ ...m, waist: e.target.value }))}
                   />
                 </div>
-                <Button onClick={handleMedidasSave} disabled={loading} className="w-full">
-                  {loading ? "Salvando..." : "Continuar →"}
+                <Button onClick={handleMedidasSave} disabled={loading} className="w-full gap-1.5">
+                  {loading ? t("common.saving") : <><ChevronRight className="w-4 h-4" /> {t("common.continue")}</>}
                 </Button>
               </div>
             )}
@@ -252,40 +261,39 @@ export default function OnboardingPage() {
             {step === 3 && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Tipo de meta</Label>
+                  <Label>{t("onboarding.goal_type")}</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { v: "bodyFat", l: "🔥 Reduzir gordura", u: "%" },
-                      { v: "weight", l: "⚖️ Perder peso", u: "kg" },
-                      { v: "muscle", l: "💪 Ganhar massa", u: "%" },
-                      { v: "streak", l: "🔥 Manter sequência", u: "dias" },
-                    ].map((t) => (
-                      <button
-                        key={t.v}
-                        type="button"
-                        onClick={() => setMeta((m) => ({ ...m, type: t.v as typeof meta.type, unit: t.u }))}
-                        className={`p-3 rounded-lg border text-sm font-medium transition-colors text-left ${
-                          meta.type === t.v
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                      >
-                        {t.l}
-                      </button>
-                    ))}
+                    {TIPOS_META.map((tp) => {
+                      const TIcon = tp.Icon;
+                      return (
+                        <button
+                          key={tp.v}
+                          type="button"
+                          onClick={() => setMeta((m) => ({ ...m, type: tp.v as typeof meta.type, unit: tp.u }))}
+                          className={`p-3 rounded-lg border text-sm font-medium transition-colors text-left flex items-center gap-2 ${
+                            meta.type === tp.v
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                        >
+                          <TIcon className="w-4 h-4 shrink-0" />
+                          {t(tp.lKey)}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Nome da missão</Label>
+                  <Label>{t("onboarding.goal_name")}</Label>
                   <Input
-                    placeholder={`Ex: Chegar a 10% de gordura`}
+                    placeholder={t("onboarding.goal_name_ph")}
                     value={meta.title}
                     onChange={(e) => setMeta((m) => ({ ...m, title: e.target.value }))}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label>Valor alvo ({meta.unit})</Label>
+                    <Label>{t("onboarding.target_value")} ({meta.unit})</Label>
                     <Input
                       type="number"
                       step="0.1"
@@ -295,7 +303,7 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Prazo (opcional)</Label>
+                    <Label>{t("common.deadline")} ({t("common.optional")})</Label>
                     <Input
                       type="date"
                       value={meta.deadline}
@@ -303,14 +311,14 @@ export default function OnboardingPage() {
                     />
                   </div>
                 </div>
-                <Button onClick={handleMetaSave} disabled={loading} className="w-full">
-                  {loading ? "Salvando..." : "Começar a Jornada! 🚀"}
+                <Button onClick={handleMetaSave} disabled={loading} className="w-full gap-1.5">
+                  {loading ? t("common.saving") : <><Rocket className="w-4 h-4" /> {t("onboarding.start_journey")}</>}
                 </Button>
                 <button
                   onClick={() => router.push("/dashboard")}
                   className="w-full text-sm text-muted-foreground hover:text-foreground"
                 >
-                  Pular e configurar depois
+                  {t("onboarding.skip_later")}
                 </button>
               </div>
             )}

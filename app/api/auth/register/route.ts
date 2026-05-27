@@ -8,6 +8,7 @@ const registerSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
+  language: z.enum(["pt", "en", "nl"]).optional().default("pt"),
 });
 
 export async function POST(request: Request) {
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, password } = parsed.data;
+    const { name, email, password, language } = parsed.data;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
         name,
         email,
         password: hashedPassword,
+        language,
         xp: 50, // XP de boas-vindas
       },
     });

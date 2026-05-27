@@ -10,6 +10,7 @@ const updateSchema = z.object({
   birthDate: z.string().optional(),
   gender: z.enum(["male", "female"]).optional(),
   waterGoal: z.number().min(500).max(10000).optional(),
+  language: z.enum(["pt", "en", "nl"]).optional(),
 });
 
 export async function GET() {
@@ -34,6 +35,7 @@ export async function GET() {
       totalWorkouts: true,
       totalMeals: true,
       waterGoal: true,
+      language: true,
       createdAt: true,
       achievements: {
         include: { achievement: true },

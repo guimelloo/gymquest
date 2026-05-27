@@ -1,6 +1,14 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ButtonLink } from "@/components/ui/button-link";
+import { Sword, BarChart2, UtensilsCrossed, Dumbbell, Trophy } from "lucide-react";
+
+const FEATURES = [
+  { Icon: BarChart2,      label: "IMC & Gordura Corporal" },
+  { Icon: UtensilsCrossed, label: "Busca de Alimentos" },
+  { Icon: Dumbbell,       label: "Planos de Treino" },
+  { Icon: Trophy,         label: "Sistema de Conquistas" },
+];
 
 export default async function Home() {
   const session = await auth();
@@ -17,8 +25,10 @@ export default async function Home() {
       <div className="relative z-10 text-center px-4 max-w-2xl mx-auto">
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="text-5xl">⚔️</div>
-          <div>
+          <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center">
+            <Sword className="w-8 h-8 text-primary" />
+          </div>
+          <div className="text-left">
             <h1 className="text-4xl font-bold text-foreground">GymQuest</h1>
             <p className="text-muted-foreground text-sm">Seu Fitness Gamificado</p>
           </div>
@@ -36,15 +46,12 @@ export default async function Home() {
 
         {/* Features */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10 text-sm">
-          {[
-            { icon: "📊", label: "IMC & Gordura Corporal" },
-            { icon: "🥗", label: "Busca de Alimentos" },
-            { icon: "💪", label: "Planos de Treino" },
-            { icon: "🏆", label: "Sistema de Conquistas" },
-          ].map((f) => (
-            <div key={f.label} className="bg-card border border-border rounded-xl p-3 text-center">
-              <div className="text-2xl mb-1">{f.icon}</div>
-              <div className="text-muted-foreground text-xs">{f.label}</div>
+          {FEATURES.map(({ Icon, label }) => (
+            <div key={label} className="bg-card border border-border rounded-xl p-3 text-center">
+              <div className="flex justify-center mb-2">
+                <Icon className="w-6 h-6 text-primary" />
+              </div>
+              <div className="text-muted-foreground text-xs">{label}</div>
             </div>
           ))}
         </div>

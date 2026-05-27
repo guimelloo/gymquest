@@ -33,6 +33,9 @@ model User {
   // Meta diária de água (ml)
   waterGoal     Int       @default(2500)
 
+  // Idioma da interface: "pt" | "en" | "nl"
+  language      String    @default("pt")
+
   measurements  BodyMeasurement[]
   dailyLogs     DailyLog[]
   mealEntries   MealEntry[]

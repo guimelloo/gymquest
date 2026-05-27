@@ -13,8 +13,12 @@ import { calcularIMC, classificarIMC } from "@/lib/calculations";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
+import {
+  Scale, BarChart2, Ruler, TrendingUp, TrendingDown,
+  ClipboardList, Plus, CheckCircle2,
+} from "lucide-react";
 
 interface Medida {
   id: string;
@@ -80,16 +84,15 @@ export default function ProgressoPage() {
       const data = await res.json();
       if (!res.ok) { toast.error(data.error); return; }
 
-      toast.success("✅ Medida registrada! +10 XP");
-      if (data.xp?.levelUp) toast.success(`🆙 Level Up! Nível ${data.xp.levelAtual}!`);
+      toast.success("Medida registrada! +10 XP");
+      if (data.xp?.levelUp) toast.success(`Level Up! Nível ${data.xp.levelAtual}!`);
       if (data.xp?.conquistasDesbloqueadas?.length > 0) {
-        data.xp.conquistasDesbloqueadas.forEach((c: string) => toast.success(`🏆 ${c}`));
+        data.xp.conquistasDesbloqueadas.forEach((c: string) => toast.success(c));
       }
 
       setModalOpen(false);
       setForm({ weight: "", bodyFat: "", muscleMass: "", waist: "", chest: "", hips: "", notes: "" });
 
-      // Recarregar
       const m = await fetch("/api/medidas?limit=30").then((r) => r.json());
       setMedidas(Array.isArray(m) ? m : []);
     } catch {
@@ -105,7 +108,6 @@ export default function ProgressoPage() {
     : null;
   const imcInfo = imc ? classificarIMC(imc) : null;
 
-  // Dados para gráficos (ordem crescente)
   const chartData = [...medidas].reverse().map((m) => ({
     date: format(new Date(m.date), "dd/MM"),
     peso: m.weight,
@@ -118,9 +120,12 @@ export default function ProgressoPage() {
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">📊 Progresso</h1>
-        <Button onClick={() => setModalOpen(true)}>
-          + Registrar
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <BarChart2 className="w-6 h-6 text-primary" />
+          Progresso
+        </h1>
+        <Button onClick={() => setModalOpen(true)} className="gap-1.5">
+          <Plus className="w-4 h-4" /> Registrar
         </Button>
       </div>
 
@@ -129,20 +134,25 @@ export default function ProgressoPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card className="border-border/50">
             <CardContent className="pt-4 pb-4">
+              <Scale className="w-4 h-4 text-primary mb-1" />
               <div className="text-xl font-bold">{ultimaMedida.weight} kg</div>
               <div className="text-xs text-muted-foreground">Peso atual</div>
-              {medidas.length >= 2 && (
-                <div className={`text-xs mt-1 ${ultimaMedida.weight < medidas[1].weight ? "text-green-400" : "text-red-400"}`}>
-                  {(ultimaMedida.weight - medidas[1].weight) > 0 ? "+" : ""}
-                  {(ultimaMedida.weight - medidas[1].weight).toFixed(1)} kg
-                </div>
-              )}
+              {medidas.length >= 2 && (() => {
+                const diff = ultimaMedida.weight - medidas[1].weight;
+                return (
+                  <div className={`text-xs mt-1 flex items-center gap-0.5 ${diff < 0 ? "text-green-400" : "text-red-400"}`}>
+                    {diff < 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                    {diff > 0 ? "+" : ""}{diff.toFixed(1)} kg
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
 
           {imc && (
             <Card className="border-border/50">
               <CardContent className="pt-4 pb-4">
+                <BarChart2 className="w-4 h-4 text-blue-400 mb-1" />
                 <div className="text-xl font-bold">{imc.toFixed(1)}</div>
                 <div className="text-xs text-muted-foreground">IMC</div>
                 {imcInfo && <div className={`text-xs mt-1 ${imcInfo.color}`}>{imcInfo.label}</div>}
@@ -153,14 +163,18 @@ export default function ProgressoPage() {
           {ultimaMedida.bodyFat && (
             <Card className="border-border/50">
               <CardContent className="pt-4 pb-4">
+                <TrendingDown className="w-4 h-4 text-orange-400 mb-1" />
                 <div className="text-xl font-bold">{ultimaMedida.bodyFat}%</div>
                 <div className="text-xs text-muted-foreground">Gordura corporal</div>
-                {medidas.length >= 2 && medidas[1].bodyFat && (
-                  <div className={`text-xs mt-1 ${ultimaMedida.bodyFat < medidas[1].bodyFat ? "text-green-400" : "text-red-400"}`}>
-                    {(ultimaMedida.bodyFat - medidas[1].bodyFat) > 0 ? "+" : ""}
-                    {(ultimaMedida.bodyFat - medidas[1].bodyFat).toFixed(1)}%
-                  </div>
-                )}
+                {medidas.length >= 2 && medidas[1].bodyFat && (() => {
+                  const diff = ultimaMedida.bodyFat! - medidas[1].bodyFat!;
+                  return (
+                    <div className={`text-xs mt-1 flex items-center gap-0.5 ${diff < 0 ? "text-green-400" : "text-red-400"}`}>
+                      {diff < 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                      {diff > 0 ? "+" : ""}{diff.toFixed(1)}%
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           )}
@@ -168,6 +182,7 @@ export default function ProgressoPage() {
           {ultimaMedida.waist && (
             <Card className="border-border/50">
               <CardContent className="pt-4 pb-4">
+                <Ruler className="w-4 h-4 text-purple-400 mb-1" />
                 <div className="text-xl font-bold">{ultimaMedida.waist} cm</div>
                 <div className="text-xs text-muted-foreground">Cintura</div>
               </CardContent>
@@ -188,24 +203,18 @@ export default function ProgressoPage() {
           <TabsContent value="peso">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">⚖️ Evolução do Peso</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-primary" /> Evolução do Peso
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
-                    <YAxis
-                      domain={["auto", "auto"]}
-                      tick={{ fontSize: 11, fill: "#6b7280" }}
-                      width={40}
-                    />
+                    <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
                     <Tooltip
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                      }}
+                      contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
                       formatter={(v) => [`${Number(v ?? 0).toFixed(1)} kg`, "Peso"]}
                     />
                     <Line type="monotone" dataKey="peso" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
@@ -218,7 +227,9 @@ export default function ProgressoPage() {
           <TabsContent value="gordura">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">🔥 % de Gordura Corporal</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <TrendingDown className="w-4 h-4 text-orange-400" /> % de Gordura Corporal
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {chartData.some((d) => d.gordura) ? (
@@ -246,7 +257,9 @@ export default function ProgressoPage() {
           <TabsContent value="cintura">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">📏 Medida da Cintura</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Ruler className="w-4 h-4 text-purple-400" /> Medida da Cintura
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {chartData.some((d) => d.cintura) ? (
@@ -275,10 +288,12 @@ export default function ProgressoPage() {
 
       {/* Histórico */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">📋 Histórico</h2>
+        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+          <ClipboardList className="w-5 h-5 text-muted-foreground" /> Histórico
+        </h2>
         {medidas.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            <div className="text-4xl mb-2">📊</div>
+            <BarChart2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p>Nenhuma medida registrada</p>
             <p className="text-sm mt-1">Clique em "Registrar" para começar</p>
           </div>
@@ -291,12 +306,15 @@ export default function ProgressoPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold">{m.weight} kg</span>
-                        {idx > 0 && (
-                          <span className={`text-xs ${m.weight < medidas[idx - 1].weight ? "text-green-400" : "text-red-400"}`}>
-                            {(m.weight - medidas[idx - 1].weight) > 0 ? "+" : ""}
-                            {(m.weight - medidas[idx - 1].weight).toFixed(1)} kg
-                          </span>
-                        )}
+                        {idx > 0 && (() => {
+                          const diff = m.weight - medidas[idx - 1].weight;
+                          return (
+                            <span className={`text-xs flex items-center gap-0.5 ${diff < 0 ? "text-green-400" : "text-red-400"}`}>
+                              {diff < 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                              {diff > 0 ? "+" : ""}{diff.toFixed(1)} kg
+                            </span>
+                          );
+                        })()}
                         {idx === 0 && <Badge variant="outline" className="text-xs">Atual</Badge>}
                       </div>
                       <div className="flex gap-3 text-xs text-muted-foreground mt-1">
@@ -321,7 +339,9 @@ export default function ProgressoPage() {
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>📊 Registrar Medidas</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <BarChart2 className="w-5 h-5 text-primary" /> Registrar Medidas
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
@@ -361,8 +381,8 @@ export default function ProgressoPage() {
               <Input placeholder="Como está se sentindo?" value={form.notes}
                 onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
             </div>
-            <Button onClick={salvarMedida} disabled={saving} className="w-full">
-              {saving ? "Salvando..." : "✅ Salvar +10 XP"}
+            <Button onClick={salvarMedida} disabled={saving} className="w-full gap-1.5">
+              {saving ? "Salvando..." : <><CheckCircle2 className="w-4 h-4" /> Salvar +10 XP</>}
             </Button>
           </div>
         </DialogContent>
