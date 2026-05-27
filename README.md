@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚔️ GymQuest — Fitness Gamificado
 
-## Getting Started
+App de fitness gamificado com Next.js 14, Prisma e PostgreSQL (Neon).
 
-First, run the development server:
+## 🚀 Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Dashboard gamificado** — XP, níveis, streaks, conquistas
+- **Medidas corporais** — Peso, gordura corporal, cintura + gráficos
+- **Alimentação** — Busca Open Food Facts, registro de refeições, macros
+- **Treino** — Planos personalizados, registro e histórico
+- **Metas/Missões** — Metas com prazos e XP de recompensa
+- **Sistema de conquistas** — 13 conquistas para desbloquear
+
+## 🛠️ Setup
+
+### 1. Banco (Neon — gratuito)
+Crie em [neon.tech](https://neon.tech) e copie a connection string.
+
+### 2. .env
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
+DIRECT_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
+AUTH_SECRET="gere com: openssl rand -base64 32"
+NEXTAUTH_URL="http://localhost:3000"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Instalar
+```bash
+npm install
+npx prisma db push
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ☁️ Deploy Vercel
+1. Push para GitHub
+2. Importe no Vercel
+3. Configure as variáveis de ambiente
+4. Deploy automático!
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+As URLs do Neon: pooled → DATABASE_URL, direct → DIRECT_URL

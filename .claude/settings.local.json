@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --no-src-dir --import-alias=\"@/*\" --yes)",
+      "Bash(npx create-next-app@latest gamifiedgym --typescript --tailwind --eslint --app --no-src-dir --import-alias=\"@/*\" --yes)",
+      "Bash(mv /Users/gui/projects/GamifiedGym/gamifiedgym/* /Users/gui/projects/GamifiedGym/)",
+      "Bash(mv /Users/gui/projects/GamifiedGym/gamifiedgym/.* /Users/gui/projects/GamifiedGym/)",
+      "Bash(rmdir /Users/gui/projects/GamifiedGym/gamifiedgym)",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npx shadcn@latest init --yes -d)",
+      "Bash(npx shadcn@latest add card badge input label select textarea avatar progress tabs dropdown-menu alert dialog sheet toast --yes)",
+      "Bash(npx shadcn@latest add card badge input label select textarea avatar progress tabs dropdown-menu alert dialog sheet sonner separator --yes)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'feat: GymQuest - app fitness gamificado completo *)"
+    ]
+  }
+}

@@ -1,0 +1,178 @@
+// Schema do GamifiedGym
+// Configurado para Vercel + Neon PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Perfil físico
+  height        Float?
+  birthDate     DateTime?
+  gender        String?
+
+  // Sistema de gamificação
+  xp            Int       @default(0)
+  level         Int       @default(1)
+  streak        Int       @default(0)
+  lastCheckIn   DateTime?
+  totalWorkouts Int       @default(0)
+  totalMeals    Int       @default(0)
+
+  // Meta diária de água (ml)
+  waterGoal     Int       @default(2500)
+
+  measurements  BodyMeasurement[]
+  dailyLogs     DailyLog[]
+  mealEntries   MealEntry[]
+  workoutPlans  WorkoutPlan[]
+  workoutLogs   WorkoutLog[]
+  goals         Goal[]
+  achievements  UserAchievement[]
+}
+
+model BodyMeasurement {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        DateTime @default(now())
+  weight      Float
+  bodyFat     Float?
+  muscleMass  Float?
+  waist       Float?
+  chest       Float?
+  hips        Float?
+  notes       String?
+
+  @@index([userId, date])
+}
+
+model DailyLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  waterMl   Int      @default(0)
+  mood      String?
+  notes     String?
+  xpEarned  Int      @default(0)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model MealEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  mealType  String
+  foodName  String
+  foodId    String?
+  quantity  Float
+  calories  Float?
+  protein   Float?
+  carbs     Float?
+  fat       Float?
+  fiber     Float?
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+model WorkoutPlan {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  isActive    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  days        WorkoutDay[]
+  logs        WorkoutLog[]
+}
+
+model WorkoutDay {
+  id          String            @id @default(cuid())
+  planId      String
+  plan        WorkoutPlan       @relation(fields: [planId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int
+  name        String
+  exercises   WorkoutExercise[]
+}
+
+model WorkoutExercise {
+  id        String     @id @default(cuid())
+  dayId     String
+  day       WorkoutDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  name      String
+  sets      Int
+  reps      String
+  weight    Float?
+  restSecs  Int?
+  notes     String?
+  order     Int        @default(0)
+}
+
+model WorkoutLog {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId    String?
+  plan      WorkoutPlan? @relation(fields: [planId], references: [id])
+  date      DateTime     @default(now())
+  duration  Int?
+  notes     String?
+  xpEarned  Int          @default(0)
+}
+
+model Goal {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         String
+  title        String
+  description  String?
+  targetValue  Float?
+  currentValue Float?
+  startValue   Float?
+  unit         String?
+  deadline     DateTime?
+  status       String    @default("active")
+  xpReward     Int       @default(200)
+  createdAt    DateTime  @default(now())
+  completedAt  DateTime?
+}
+
+model Achievement {
+  id          String            @id @default(cuid())
+  key         String            @unique
+  name        String
+  description String
+  icon        String
+  xpReward    Int
+  rarity      String
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  earnedAt      DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+}
