@@ -39,6 +39,13 @@ export function WaterTracker({ waterMl: initialMl, waterGoal, onUpdate }: WaterT
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ waterMl: novoTotal, date: today }),
       });
+
+      // Only update local state when the save actually succeeded
+      if (!res.ok) {
+        toast.error(t("water.error"));
+        return;
+      }
+
       const data = await res.json();
       setWaterMl(novoTotal);
       onUpdate(novoTotal);

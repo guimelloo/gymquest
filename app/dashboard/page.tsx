@@ -176,7 +176,15 @@ export default function DashboardPage() {
         <WaterTracker
           waterMl={logHoje?.waterMl || 0}
           waterGoal={user.waterGoal}
-          onUpdate={() => {}}
+          onUpdate={() => {
+            // Re-fetch dashboard so waterMl reflects the saved value on next render
+            const d2 = new Date();
+            const lt = `${d2.getFullYear()}-${String(d2.getMonth() + 1).padStart(2, "0")}-${String(d2.getDate()).padStart(2, "0")}`;
+            fetch(`/api/dashboard?today=${lt}`)
+              .then((r) => r.json())
+              .then(setData)
+              .catch(() => {});
+          }}
         />
         {ultimosPesos.length >= 2 && <WeightMiniChart data={ultimosPesos} />}
       </div>

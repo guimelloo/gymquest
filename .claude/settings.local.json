@@ -33,7 +33,9 @@
       "Bash(git push *)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('dependencies',{}\\), indent=2\\)\\)\")",
       "Bash(grep -v \"^$\")",
-      "Bash(git commit -m 'feat: bodybuilder templates \\(Ganley/Cariani/Balestrini\\), AI physique analyzer, enhanced progress charts *)"
+      "Bash(git commit -m 'feat: bodybuilder templates \\(Ganley/Cariani/Balestrini\\), AI physique analyzer, enhanced progress charts *)",
+      "Bash(grep -v '//\\\\|t\\(\"\\\\|`\\\\|import\\\\|interface\\\\|const\\\\|type ')",
+      "Bash(git commit -m 'fix: water tracker persistence, remove AI analyzer, translate PWA banner *)"
     ]
   }
 }
