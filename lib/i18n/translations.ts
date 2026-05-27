@@ -373,6 +373,9 @@ const t = {
     "progress.invalid_photo": "Arquivo deve ser uma imagem",
     "progress.photo_too_large": "Foto muito grande (máx. 10 MB)",
     "progress.notes_placeholder": "Observações (opcional)",
+    "progress.photo_saved": "Foto adicionada!",
+    "progress.photo_view": "Ver foto",
+    "progress.photo_remove": "Remover foto",
 
     /* ── Physique Analyzer (rule-based) ── */
     "analyzer.title": "Analisador de Físico",
@@ -761,6 +764,9 @@ const t = {
     "progress.invalid_photo": "File must be an image",
     "progress.photo_too_large": "Photo too large (max 10 MB)",
     "progress.notes_placeholder": "Notes (optional)",
+    "progress.photo_saved": "Photo added!",
+    "progress.photo_view": "View photo",
+    "progress.photo_remove": "Remove photo",
 
     /* ── Physique Analyzer (rule-based) ── */
     "analyzer.title": "Physique Analyzer",
@@ -1149,6 +1155,9 @@ const t = {
     "progress.invalid_photo": "Bestand moet een afbeelding zijn",
     "progress.photo_too_large": "Foto te groot (max. 10 MB)",
     "progress.notes_placeholder": "Notities (optioneel)",
+    "progress.photo_saved": "Foto toegevoegd!",
+    "progress.photo_view": "Foto bekijken",
+    "progress.photo_remove": "Foto verwijderen",
 
     /* ── Physique Analyzer (rule-based) ── */
     "analyzer.title": "Lichaamsanalyzer",

@@ -37,7 +37,8 @@
       "Bash(grep -v '//\\\\|t\\(\"\\\\|`\\\\|import\\\\|interface\\\\|const\\\\|type ')",
       "Bash(git commit -m 'fix: water tracker persistence, remove AI analyzer, translate PWA banner *)",
       "Bash(git commit -m 'feat: water fix, progress charts + photos, physique analyzer, bodybuilder templates, full i18n *)",
-      "Bash(git commit -m 'feat: always-visible charts with toggle button in progress page *)"
+      "Bash(git commit -m 'feat: always-visible charts with toggle button in progress page *)",
+      "Bash(git commit -m 'feat: add photo button on each progress history card *)"
     ]
   }
 }

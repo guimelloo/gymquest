@@ -74,7 +74,10 @@ export default function ProgressoPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null); // lightbox
   const [showCharts, setShowCharts] = useState(true);
+  const [uploadingPhotoId, setUploadingPhotoId] = useState<string | null>(null); // which card is uploading
   const fileRef = useRef<HTMLInputElement>(null);
+  const cardFileRef = useRef<HTMLInputElement>(null);
+  const pendingCardId = useRef<string | null>(null); // id of card awaiting photo pick
 
   const [form, setForm] = useState({
     weight: "", bodyFat: "", muscleMass: "",
@@ -106,6 +109,55 @@ export default function ProgressoPage() {
       toast.error(t("progress.photo_error"));
     }
     e.target.value = "";
+  };
+
+  // Upload photo to an existing measurement card
+  const handleCardPhotoFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const id = pendingCardId.current;
+    e.target.value = "";
+    if (!file || !id) return;
+    if (!file.type.startsWith("image/")) { toast.error(t("progress.invalid_photo")); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error(t("progress.photo_too_large")); return; }
+    setUploadingPhotoId(id);
+    try {
+      const compressed = await compressImage(file);
+      const res = await fetch(`/api/medidas/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photo: compressed }),
+      });
+      if (!res.ok) { toast.error(t("progress.photo_error")); return; }
+      toast.success(t("progress.photo_saved"));
+      await loadMedidas();
+    } catch {
+      toast.error(t("progress.photo_error"));
+    } finally {
+      setUploadingPhotoId(null);
+      pendingCardId.current = null;
+    }
+  };
+
+  const openCardPhotoPicker = (id: string) => {
+    pendingCardId.current = id;
+    cardFileRef.current?.click();
+  };
+
+  const removeCardPhoto = async (id: string) => {
+    setUploadingPhotoId(id);
+    try {
+      const res = await fetch(`/api/medidas/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photo: null }),
+      });
+      if (!res.ok) { toast.error(t("progress.photo_error")); return; }
+      await loadMedidas();
+    } catch {
+      toast.error(t("progress.photo_error"));
+    } finally {
+      setUploadingPhotoId(null);
+    }
   };
 
   const salvarMedida = async () => {
@@ -445,6 +497,7 @@ export default function ProgressoPage() {
               <Card key={m.id} className="border-border/50">
                 <CardContent className="py-3 px-4">
                   <div className="flex items-start justify-between gap-3">
+                    {/* Left: stats */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold">{m.weight} kg</span>
@@ -455,25 +508,54 @@ export default function ProgressoPage() {
                         {idx === 0 && <Badge variant="outline" className="text-xs">{t("common.today_excl")}</Badge>}
                       </div>
                       <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mt-1">
-                        {m.bodyFat  && <span>{t("common.fat")}: {m.bodyFat}%</span>}
-                        {m.waist    && <span>{t("progress.waist")}: {m.waist}cm</span>}
+                        {m.bodyFat    && <span>{t("common.fat")}: {m.bodyFat}%</span>}
+                        {m.waist      && <span>{t("progress.waist")}: {m.waist}cm</span>}
                         {m.muscleMass && <span>{t("progress.muscle_mass")}: {m.muscleMass}%</span>}
                       </div>
                       {m.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">{m.notes}</p>}
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      {m.photo && (
-                        <button
-                          onClick={() => setSelectedPhoto(m.photo!)}
-                          className="relative w-10 h-14 rounded-lg overflow-hidden border border-border hover:border-primary/60"
-                        >
-                          <Image src={m.photo} alt="" fill className="object-cover" unoptimized />
-                        </button>
-                      )}
+                    {/* Right: date + photo slot */}
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(m.date), "d MMM yyyy", { locale: ptBR })}
                       </span>
+
+                      {m.photo ? (
+                        /* Thumbnail — click to view full, long-press hint via title */
+                        <div className="relative group">
+                          <button
+                            onClick={() => setSelectedPhoto(m.photo!)}
+                            className="relative w-12 h-16 rounded-lg overflow-hidden border border-border hover:border-primary/60 transition-colors"
+                            title={t("progress.photo_view")}
+                          >
+                            <Image src={m.photo} alt="" fill className="object-cover" unoptimized />
+                          </button>
+                          {/* Remove photo button */}
+                          <button
+                            onClick={() => removeCardPhoto(m.id)}
+                            disabled={uploadingPhotoId === m.id}
+                            className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow transition-opacity opacity-0 group-hover:opacity-100 focus:opacity-100"
+                            title={t("progress.photo_remove")}
+                          >
+                            <X className="w-2.5 h-2.5 text-white" />
+                          </button>
+                        </div>
+                      ) : (
+                        /* Add photo button */
+                        <button
+                          onClick={() => openCardPhotoPicker(m.id)}
+                          disabled={uploadingPhotoId === m.id}
+                          className="flex items-center gap-1 text-xs text-muted-foreground border border-dashed border-border rounded-lg px-2 py-1.5 hover:border-primary/60 hover:text-primary transition-colors disabled:opacity-50"
+                          title={t("progress.add_photo")}
+                        >
+                          {uploadingPhotoId === m.id
+                            ? <span className="w-3 h-3 border-2 border-primary/50 border-t-primary rounded-full animate-spin" />
+                            : <Camera className="w-3 h-3" />
+                          }
+                          <span>{t("progress.add_photo")}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -565,6 +647,15 @@ export default function ProgressoPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Hidden file input for card photo upload */}
+      <input
+        ref={cardFileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleCardPhotoFile}
+      />
 
       {/* ── Lightbox ── */}
       {selectedPhoto && (
