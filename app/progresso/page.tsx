@@ -67,7 +67,7 @@ export default function ProgressoPage() {
   }, []);
 
   const salvarMedida = async () => {
-    if (!form.weight) { toast.error("Informe o peso"); return; }
+    if (!form.weight) { toast.error(t("progress.error_weight")); return; }
     setSaving(true);
     try {
       const res = await fetch("/api/medidas", {
