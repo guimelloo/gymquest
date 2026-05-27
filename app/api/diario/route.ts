@@ -16,7 +16,9 @@ export async function GET(request: Request) {
   if (!session?.user?.id) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
-  const date = searchParams.get("date") || new Date().toISOString().split("T")[0];
+  const d = new Date();
+  const localFallback = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const date = searchParams.get("date") || searchParams.get("today") || localFallback;
   const targetDate = new Date(date);
   targetDate.setHours(12, 0, 0, 0);
 
@@ -50,7 +52,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
     }
 
-    const dateStr = parsed.data.date || new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const localFallback2 = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const dateStr = parsed.data.date || localFallback2;
     const dateObj = new Date(dateStr + "T12:00:00.000Z");
 
     const user = await prisma.user.findUnique({

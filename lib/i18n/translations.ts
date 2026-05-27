@@ -317,6 +317,11 @@ const t = {
     "profile.next_level": "→ Nível {n}",
     "profile.language": "Idioma",
     "profile.language_saved": "Idioma atualizado!",
+    "profile.age": "Idade",
+
+    /* ── Workout: Athlete templates ── */
+    "workout.athlete_templates": "Treinos Inspirados em Atletas",
+    "workout.athlete_use": "Usar treino",
 
     /* ── Water ── */
     "water.title": "Água Hoje",
@@ -630,6 +635,10 @@ const t = {
     "profile.next_level": "→ Level {n}",
     "profile.language": "Language",
     "profile.language_saved": "Language updated!",
+    "profile.age": "Age",
+
+    "workout.athlete_templates": "Athlete-Inspired Workouts",
+    "workout.athlete_use": "Use workout",
 
     "water.title": "Water Today",
     "water.goal_reached": "Water goal reached! +15 XP 💧",
@@ -942,6 +951,10 @@ const t = {
     "profile.next_level": "→ Niveau {n}",
     "profile.language": "Taal",
     "profile.language_saved": "Taal bijgewerkt!",
+    "profile.age": "Leeftijd",
+
+    "workout.athlete_templates": "Atleet-geïnspireerde Trainingen",
+    "workout.athlete_use": "Training gebruiken",
 
     "water.title": "Water Vandaag",
     "water.goal_reached": "Waterdoel bereikt! +15 XP 💧",

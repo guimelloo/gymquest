@@ -28,7 +28,8 @@
       "Bash(vercel whoami *)",
       "Bash(vercel *)",
       "Bash(npm show *)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(git commit -m 'feat: workout templates, athlete workouts, water fix, expanded food db, translation polish *)"
     ]
   }
 }

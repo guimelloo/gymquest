@@ -291,7 +291,7 @@ export default function MetasPage() {
                       </div>
                       {meta.completedAt && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          Concluída em {format(new Date(meta.completedAt), "d MMM yyyy", { locale: ptBR })}
+                          {t("goals.completed_on")} {format(new Date(meta.completedAt), "d MMM yyyy", { locale: ptBR })}
                         </p>
                       )}
                     </div>
@@ -364,7 +364,7 @@ export default function MetasPage() {
                 <Input
                   type="number"
                   step="0.1"
-                  placeholder="Valor alvo"
+                  placeholder={t("goals.target")}
                   value={form.targetValue}
                   onChange={(e) => setForm((f) => ({ ...f, targetValue: e.target.value }))}
                 />
@@ -373,7 +373,7 @@ export default function MetasPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>{t("goals.deadline")} (opcional)</Label>
+                <Label>{t("goals.deadline")}</Label>
                 <Input
                   type="date"
                   value={form.deadline}
@@ -415,7 +415,7 @@ export default function MetasPage() {
                   step="0.1"
                   value={novoValor}
                   onChange={(e) => setNovoValor(e.target.value)}
-                  placeholder="Valor atual"
+                  placeholder={t("goals.current_value")}
                 />
                 <p className="text-xs text-muted-foreground">
                   {t("goals.target")}: {updateModal.targetValue}{updateModal.unit}

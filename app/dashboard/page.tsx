@@ -104,11 +104,11 @@ export default function DashboardPage() {
                 <h1 className="text-lg font-bold leading-tight">{user.name}</h1>
                 <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   <Badge variant="outline" className="text-xs text-primary border-primary/40 py-0">
-                    Nível {levelInfo.nivel} · {getTitulo(levelInfo.nivel)}
+                    {t("common.level")} {levelInfo.nivel} · {getTitulo(levelInfo.nivel)}
                   </Badge>
                   {user.streak > 0 && (
                     <Badge variant="outline" className="text-xs text-orange-400 border-orange-400/40 py-0 gap-1">
-                      <Flame className="w-3 h-3" />{user.streak} dias
+                      <Flame className="w-3 h-3" />{user.streak} {t("common.days")}
                     </Badge>
                   )}
                 </div>
@@ -269,7 +269,7 @@ export default function DashboardPage() {
               <Card key={log.id} className="border-border/40">
                 <CardContent className="py-3 px-4 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium">{log.plan?.name || "Treino livre"}</p>
+                    <p className="text-sm font-medium">{log.plan?.name || t("workout.free")}</p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                       <CalendarDays className="w-3 h-3" />
                       {format(new Date(log.date), "d MMM", { locale: ptBR })}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Droplets, Plus } from "lucide-react";
@@ -17,6 +17,11 @@ const PORCOES = [200, 300, 500];
 
 export function WaterTracker({ waterMl: initialMl, waterGoal, onUpdate }: WaterTrackerProps) {
   const [waterMl, setWaterMl] = useState(initialMl);
+
+  // Sync when prop updates (e.g. dashboard reloads and gets persisted value)
+  useEffect(() => {
+    setWaterMl(initialMl);
+  }, [initialMl]);
   const [saving, setSaving] = useState(false);
   const { t } = useLanguage();
 
@@ -27,10 +32,12 @@ export function WaterTracker({ waterMl: initialMl, waterGoal, onUpdate }: WaterT
     const novoTotal = Math.min(waterMl + ml, waterGoal * 2);
     setSaving(true);
     try {
+      const d = new Date();
+      const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       const res = await fetch("/api/diario", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ waterMl: novoTotal }),
+        body: JSON.stringify({ waterMl: novoTotal, date: today }),
       });
       const data = await res.json();
       setWaterMl(novoTotal);

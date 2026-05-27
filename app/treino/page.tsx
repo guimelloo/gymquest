@@ -17,15 +17,14 @@ import {
 import { MuscleBadge } from "@/components/muscle-badge";
 import { ExerciseVideoButton } from "@/components/exercise-video-button";
 import { getExerciseMuscles, MUSCLE_GROUPS, MUSCLE_LABELS, type MuscleGroup } from "@/lib/exercises-db";
-import { WORKOUT_TEMPLATES, LEVEL_COLORS, type WorkoutTemplate } from "@/lib/workout-templates";
+import { WORKOUT_TEMPLATES, ATHLETE_TEMPLATES, LEVEL_COLORS, type WorkoutTemplate, type AthleteTemplate } from "@/lib/workout-templates";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n/context";
 
-const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-const DIAS_SEMANA_FULL = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+// Day labels come from translations – see useLanguage() in the component
 
 interface ExercicioForm {
   name: string;
@@ -78,7 +77,9 @@ function exerciceDefaultForm(): ExercicioForm {
 }
 
 export default function TreinoPage() {
-  const { t } = useLanguage();
+  const { t, ta } = useLanguage();
+  const diasSemana     = ta("workout.days");      // ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"]
+  const diasSemanaFull = ta("workout.days_full"); // ["Domingo","Segunda",…]
   const [planos, setPlanos] = useState<WorkoutPlan[]>([]);
   const [logs, setLogs] = useState<WorkoutLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -240,7 +241,7 @@ export default function TreinoPage() {
       const data = await res.json();
       if (!res.ok) { toast.error(data.error); return; }
 
-      toast.success(`${t("workout.registered")}! +${data.xp?.xpGanho ?? 25} XP`);
+      toast.success(t("workout.registered", { xp: data.xp?.xpGanho ?? 25 }));
       if (data.xp?.levelUp) toast.success(t("workout.level_up", { n: data.xp.levelAtual }));
       data.xp?.conquistasDesbloqueadas?.forEach((c: string) => toast.success(`Conquista: ${c}`));
 
@@ -375,7 +376,7 @@ export default function TreinoPage() {
                                 "text-xs font-bold w-7 h-7 rounded-md flex items-center justify-center shrink-0",
                                 isHoje ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
                               )}>
-                                {DIAS_SEMANA[dia.dayOfWeek]}
+                                {diasSemana[dia.dayOfWeek]}
                               </span>
                               <div className="min-w-0">
                                 <p className="text-sm font-medium truncate">{dia.name}</p>
@@ -422,12 +423,32 @@ export default function TreinoPage() {
             <TemplateCard
               key={tmpl.id}
               template={tmpl}
-              onApply={(t) => {
-                aplicarTemplate(t);
+              onApply={(tpl) => {
+                aplicarTemplate(tpl);
                 setAbaAtiva("criar");
               }}
             />
           ))}
+
+          {/* ── Atletas ── */}
+          <div className="pt-2">
+            <h2 className="text-sm font-bold flex items-center gap-2 mb-3">
+              <Star className="w-4 h-4 text-yellow-400" />
+              {t("workout.athlete_templates")}
+            </h2>
+            <div className="space-y-3">
+              {ATHLETE_TEMPLATES.map((athl) => (
+                <AthleteCard
+                  key={athl.id}
+                  athlete={athl}
+                  onApply={(a) => {
+                    aplicarTemplate({ ...a, id: a.id, name: `${a.athleteName} — ${a.sport}`, description: a.description, level: "Intermediário" });
+                    setAbaAtiva("criar");
+                  }}
+                />
+              ))}
+            </div>
+          </div>
         </TabsContent>
 
         {/* ── Tab: Histórico ── */}
@@ -461,7 +482,7 @@ export default function TreinoPage() {
                     <div className="text-xl font-bold">
                       {Math.round(logs.reduce((a, l) => a + (l.duration || 0), 0) / (logs.filter((l) => l.duration).length || 1))}
                     </div>
-                    <div className="text-xs text-muted-foreground">{t("workout.duration")}</div>
+                    <div className="text-xs text-muted-foreground">{t("workout.stat_avg")}</div>
                   </CardContent>
                 </Card>
               </div>
@@ -536,7 +557,7 @@ export default function TreinoPage() {
                     onChange={(e) => updateDia(diaIdx, "dayOfWeek", parseInt(e.target.value))}
                     className="bg-secondary border border-border rounded-lg px-2 py-1.5 text-sm"
                   >
-                    {DIAS_SEMANA_FULL.map((d, i) => <option key={i} value={i}>{d}</option>)}
+                    {diasSemanaFull.map((d, i) => <option key={i} value={i}>{d}</option>)}
                   </select>
 
                   {/* Grupo muscular */}
@@ -552,7 +573,7 @@ export default function TreinoPage() {
 
                   {/* Nome personalizado */}
                   <Input
-                    placeholder={`Nome (ex: Peito e Tríceps)`}
+                    placeholder={t("workout.day_name_ph")}
                     value={dia.name}
                     onChange={(e) => updateDia(diaIdx, "name", e.target.value)}
                     className="flex-1 min-w-[160px] h-9 text-sm"
@@ -811,6 +832,91 @@ function ExerciseRow({ exercise }: { exercise: WorkoutPlan["days"][0]["exercises
       {/* Botão de vídeo */}
       <ExerciseVideoButton exerciseName={exercise.name} variant="icon" />
     </div>
+  );
+}
+
+// ── Card de atleta ──
+function AthleteCard({
+  athlete,
+  onApply,
+}: {
+  athlete: AthleteTemplate;
+  onApply: (a: AthleteTemplate) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
+
+  return (
+    <Card className="border-yellow-400/20 overflow-hidden">
+      <CardContent className="pt-4 pb-3">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-yellow-400/10 flex items-center justify-center shrink-0">
+            <Star className="w-5 h-5 text-yellow-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+              <h3 className="font-bold text-sm">{athlete.athleteName}</h3>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full border border-yellow-400/30 text-yellow-400 bg-yellow-400/10">
+                {athlete.sport}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">{athlete.description}</p>
+            <p className="text-xs italic text-muted-foreground/70 mt-1">"{athlete.quote}"</p>
+            <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <CalendarDays className="w-3 h-3" />
+                {athlete.daysPerWeek} {t("common.per_week")}
+              </span>
+              <span className="flex items-center gap-1">
+                <Star className="w-3 h-3" />
+                {athlete.goal}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {open && (
+          <div className="mt-3 space-y-2 border-t border-border/40 pt-3">
+            {athlete.days.map((dia) => (
+              <div key={dia.dayOfWeek} className="bg-secondary/40 rounded-xl px-3 py-2">
+                <p className="text-xs font-semibold text-yellow-400 mb-1">{dia.name}</p>
+                <ul className="space-y-0.5">
+                  {dia.exercises.map((ex, i) => (
+                    <li key={i} className="text-xs text-muted-foreground flex justify-between">
+                      <span className="truncate flex-1 mr-2">{ex.name}</span>
+                      <span className="shrink-0 text-[10px]">{ex.sets}×{ex.reps}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-2 mt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 gap-1.5 text-xs"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open
+              ? <><ChevronUp className="w-3.5 h-3.5" /> {t("workout.template_hide")}</>
+              : <><ChevronDown className="w-3.5 h-3.5" /> {t("workout.template_see")}</>}
+          </Button>
+          <Button
+            size="sm"
+            className="flex-1 gap-1.5 text-xs bg-yellow-400/10 text-yellow-400 border border-yellow-400/30 hover:bg-yellow-400/20"
+            onClick={() => {
+              onApply(athlete);
+              toast.success(t("workout.template_loaded", { name: athlete.athleteName }));
+            }}
+          >
+            <Star className="w-3.5 h-3.5" /> {t("workout.athlete_use")}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

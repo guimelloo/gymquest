@@ -280,7 +280,7 @@ export default function PerfilPage() {
                   <InfoRow label={t("common.name")}          value={profile.name} t={t} />
                   <InfoRow label={t("common.email")}         value={profile.email} t={t} />
                   {profile.height && <InfoRow label={t("profile.height")} value={`${profile.height} cm`} t={t} />}
-                  {idade && <InfoRow label="Idade" value={`${idade} anos`} t={t} />}
+                  {idade && <InfoRow label={t("profile.age")} value={`${idade}`} t={t} />}
                   {profile.gender && <InfoRow label={t("profile.sex")} value={profile.gender === "male" ? t("common.male") : t("common.female")} t={t} />}
                   <InfoRow label={t("profile.water_goal")}  value={`${profile.waterGoal} ml/dia`} t={t} />
                   <InfoRow label={t("profile.member_since")}  value={membroDesde} capitalize t={t} />

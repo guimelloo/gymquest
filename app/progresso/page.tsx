@@ -124,10 +124,10 @@ export default function ProgressoPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BarChart2 className="w-6 h-6 text-primary" />
-          Progresso
+          {t("progress.title")}
         </h1>
         <Button onClick={() => setModalOpen(true)} className="gap-1.5">
-          <Plus className="w-4 h-4" /> Registrar
+          <Plus className="w-4 h-4" /> {t("progress.new_btn")}
         </Button>
       </div>
 
@@ -320,9 +320,9 @@ export default function ProgressoPage() {
                         {idx === 0 && <Badge variant="outline" className="text-xs">{t("common.today_excl")}</Badge>}
                       </div>
                       <div className="flex gap-3 text-xs text-muted-foreground mt-1">
-                        {m.bodyFat && <span>Gordura: {m.bodyFat}%</span>}
-                        {m.waist && <span>Cintura: {m.waist}cm</span>}
-                        {m.muscleMass && <span>Massa: {m.muscleMass}%</span>}
+                        {m.bodyFat && <span>{t("common.fat")}: {m.bodyFat}%</span>}
+                        {m.waist && <span>{t("progress.waist")}: {m.waist}cm</span>}
+                        {m.muscleMass && <span>{t("progress.muscle_mass")}: {m.muscleMass}%</span>}
                       </div>
                       {m.notes && <p className="text-xs text-muted-foreground mt-1 italic">{m.notes}</p>}
                     </div>
@@ -348,7 +348,7 @@ export default function ProgressoPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>{t("progress.weight")} *</Label>
+                <Label>{t("progress.weight")}</Label>
                 <Input type="number" step="0.1" placeholder="82.5" value={form.weight}
                   onChange={(e) => setForm((f) => ({ ...f, weight: e.target.value }))} />
               </div>
@@ -380,7 +380,7 @@ export default function ProgressoPage() {
             </div>
             <div className="space-y-1.5">
               <Label>{t("common.notes")}</Label>
-              <Input placeholder="Como está se sentindo?" value={form.notes}
+              <Input placeholder={t("common.notes")} value={form.notes}
                 onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
             </div>
             <Button onClick={salvarMedida} disabled={saving} className="w-full gap-1.5">

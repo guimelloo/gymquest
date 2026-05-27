@@ -44,7 +44,7 @@ function weekOf(dateStr: string): string[] {
   });
 }
 
-const DIAS_SEMANA = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+// Day labels come from t() – see weekOf usage below
 
 // Meal types – labels are resolved dynamically via t() in the render
 const TIPO_REFEICAO_DEF = [
@@ -69,6 +69,8 @@ type WeekSummary = Record<string, { calories: number; protein: number; carbs: nu
 export default function AlimentosPage() {
   const today = localToday();
   const { t, ta } = useLanguage();
+
+  const diasSemana = ta("food.days"); // ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"]
 
   const [selectedDate, setSelectedDate] = useState(today);
   const [weekDays, setWeekDays]         = useState<string[]>(() => weekOf(today));
@@ -166,10 +168,10 @@ export default function AlimentosPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) { toast.error(data.error ?? "Erro ao adicionar"); return; }
+      if (!res.ok) { toast.error(data.error ?? t("food.error_add")); return; }
 
-      toast.success(`${modal.name} adicionado! +5 XP`);
-      if (data.xp?.levelUp) toast.success(`Level Up! Nível ${data.xp.levelAtual}!`);
+      toast.success(t("food.added", { name: modal.name }));
+      if (data.xp?.levelUp) toast.success(t("water.level_up", { n: data.xp.levelAtual }));
 
       setModal(null);
       setQuery("");
@@ -179,7 +181,7 @@ export default function AlimentosPage() {
       await carregarDia(selectedDate);
       carregarSemana(selectedDate);
     } catch {
-      toast.error("Erro ao adicionar");
+      toast.error(t("food.error_add"));
     } finally {
       setAdicionando(false);
     }
@@ -223,7 +225,7 @@ export default function AlimentosPage() {
                     : "text-muted-foreground hover:bg-secondary",
                 ].join(" ")}
               >
-                <span className="text-[11px] font-medium">{DIAS_SEMANA[i]}</span>
+                <span className="text-[11px] font-medium">{diasSemana[i]}</span>
                 <span className="text-base font-bold leading-none">
                   {parseInt(day.split("-")[2])}
                 </span>
@@ -241,7 +243,7 @@ export default function AlimentosPage() {
         {/* Selected day label */}
         <p className="text-xs text-muted-foreground mt-2 px-0.5">
           {selectedDate === today
-            ? "Hoje"
+            ? t("common.today")
             : format(new Date(selectedDate + "T12:00:00"), "EEEE, d 'de' MMMM", { locale: ptBR })}
         </p>
       </div>
@@ -253,7 +255,7 @@ export default function AlimentosPage() {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-medium flex items-center gap-1.5">
-                <Flame className="w-4 h-4 text-orange-400" /> Calorias do dia
+                <Flame className="w-4 h-4 text-orange-400" /> {t("food.calories_day")}
               </span>
               <span className="font-bold text-primary">
                 {Math.round(totais.calories)}{" "}
@@ -262,9 +264,9 @@ export default function AlimentosPage() {
             </div>
             <Progress value={Math.min(100, (totais.calories / CALORIAS_META) * 100)} className="h-2 mb-4" />
             <div className="grid grid-cols-3 gap-3 text-center">
-              <MacroCard label="Proteína"     value={totais.protein} unit="g" color="text-blue-400"   Icon={Beef} />
-              <MacroCard label="Carboidratos" value={totais.carbs}   unit="g" color="text-yellow-400" Icon={Wheat} />
-              <MacroCard label="Gorduras"     value={totais.fat}     unit="g" color="text-red-400"    Icon={Droplets} />
+              <MacroCard label={t("common.protein")}     value={totais.protein} unit="g" color="text-blue-400"   Icon={Beef} />
+              <MacroCard label={t("common.carbs")} value={totais.carbs}   unit="g" color="text-yellow-400" Icon={Wheat} />
+              <MacroCard label={t("common.fat")}     value={totais.fat}     unit="g" color="text-red-400"    Icon={Droplets} />
             </div>
           </CardContent>
         </Card>
@@ -274,7 +276,7 @@ export default function AlimentosPage() {
           <div className="relative">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar alimento... (ex: frango, arroz, banana)"
+              placeholder={t("food.search_ph")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="pl-9 pr-10"
@@ -300,8 +302,8 @@ export default function AlimentosPage() {
                     <div className="text-right ml-3 flex-shrink-0">
                       {item.calories !== null
                         ? <span className="text-sm font-bold text-primary">{Math.round(item.calories)} kcal</span>
-                        : <span className="text-xs text-muted-foreground">sem info</span>}
-                      <p className="text-xs text-muted-foreground">por 100g</p>
+                        : <span className="text-xs text-muted-foreground">{t("food.no_info")}</span>}
+                      <p className="text-xs text-muted-foreground">{t("food.per_100g")}</p>
                     </div>
                   </div>
                   {item.protein !== null && (
@@ -368,8 +370,8 @@ export default function AlimentosPage() {
           !query && (
             <div className="text-center py-10 text-muted-foreground">
               <UtensilsCrossed className="w-10 h-10 mx-auto mb-3 opacity-25" />
-              <p className="text-sm">Nenhuma refeição registrada</p>
-              <p className="text-xs mt-1 opacity-70">Busque um alimento acima para adicionar</p>
+              <p className="text-sm">{t("food.no_meals")}</p>
+              <p className="text-xs mt-1 opacity-70">{t("food.no_meals_hint")}</p>
             </div>
           )
         )}
@@ -386,7 +388,7 @@ export default function AlimentosPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>Quantidade (g)</Label>
+                  <Label>{t("food.quantity")}</Label>
                   <Input
                     type="number"
                     value={quantidade}
@@ -395,7 +397,7 @@ export default function AlimentosPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Refeição</Label>
+                  <Label>{t("food.meal_type")}</Label>
                   <Select value={tipoRefeicao} onValueChange={(v) => setTipoRefeicao(v ?? tipoRefeicao)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -410,19 +412,19 @@ export default function AlimentosPage() {
               {nutrientesModal && (
                 <div className="bg-secondary/50 rounded-xl p-3 grid grid-cols-2 gap-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Calorias</span>
+                    <span className="text-muted-foreground">{t("common.calories")}</span>
                     <span className="font-bold text-primary">{nutrientesModal.calories} kcal</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Proteína</span>
+                    <span className="text-muted-foreground">{t("common.protein")}</span>
                     <span>{nutrientesModal.protein}g</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Carboidratos</span>
+                    <span className="text-muted-foreground">{t("common.carbs")}</span>
                     <span>{nutrientesModal.carbs}g</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Gordura</span>
+                    <span className="text-muted-foreground">{t("common.fat")}</span>
                     <span>{nutrientesModal.fat}g</span>
                   </div>
                 </div>
@@ -430,8 +432,8 @@ export default function AlimentosPage() {
 
               <Button onClick={adicionarRefeicao} disabled={adicionando} className="w-full gap-2">
                 {adicionando
-                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Adicionando...</>
-                  : <><Plus className="w-4 h-4" /> Adicionar Refeição +5 XP</>}
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> {t("food.adding")}</>
+                  : <><Plus className="w-4 h-4" /> {t("food.add_meal")}</>}
               </Button>
             </div>
           )}
