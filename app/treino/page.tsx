@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/context";
 
 const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const DIAS_SEMANA_FULL = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
@@ -77,6 +78,7 @@ function exerciceDefaultForm(): ExercicioForm {
 }
 
 export default function TreinoPage() {
+  const { t } = useLanguage();
   const [planos, setPlanos] = useState<WorkoutPlan[]>([]);
   const [logs, setLogs] = useState<WorkoutLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -181,9 +183,9 @@ export default function TreinoPage() {
 
   // ── Salvar plano ──
   const salvarPlano = async () => {
-    if (!novoPlan.name) { toast.error("Nome do plano é obrigatório"); return; }
+    if (!novoPlan.name) { toast.error(t("workout.error_name")); return; }
     const diasValidos = dias.filter((d) => d.exercises.some((e) => e.name.trim()));
-    if (diasValidos.length === 0) { toast.error("Adicione pelo menos um exercício"); return; }
+    if (diasValidos.length === 0) { toast.error(t("workout.error_exercise")); return; }
 
     setSalvandoPlano(true);
     try {
@@ -214,11 +216,11 @@ export default function TreinoPage() {
       const data = await res.json();
       if (!res.ok) { toast.error(data.error); return; }
 
-      toast.success("Plano criado com sucesso!");
+      toast.success(t("workout.plan_saved"));
       setPlanos((p) => [data, ...p.map((pl) => ({ ...pl, isActive: false }))]);
       setNovoPlan({ name: "", description: "" });
       setDias([{ dayOfWeek: 1, name: "", muscleGroup: "peito", exercises: [exerciceDefaultForm()] }]);
-    } catch { toast.error("Erro ao criar plano"); }
+    } catch { toast.error(t("workout.error_save")); }
     finally { setSalvandoPlano(false); }
   };
 
@@ -238,13 +240,13 @@ export default function TreinoPage() {
       const data = await res.json();
       if (!res.ok) { toast.error(data.error); return; }
 
-      toast.success(`Treino registrado! +${data.xp?.xpGanho ?? 25} XP`);
-      if (data.xp?.levelUp) toast.success(`Level Up! Nível ${data.xp.levelAtual}!`);
+      toast.success(`${t("workout.registered")}! +${data.xp?.xpGanho ?? 25} XP`);
+      if (data.xp?.levelUp) toast.success(t("workout.level_up", { n: data.xp.levelAtual }));
       data.xp?.conquistasDesbloqueadas?.forEach((c: string) => toast.success(`Conquista: ${c}`));
 
       setLogModal(false);
       setLogs((l) => [data.log, ...l]);
-    } catch { toast.error("Erro ao registrar"); }
+    } catch { toast.error(t("workout.error_log")); }
     finally { setRegistrando(false); }
   };
 
@@ -277,26 +279,26 @@ export default function TreinoPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Dumbbell className="w-6 h-6 text-primary" /> Treino
+          <Dumbbell className="w-6 h-6 text-primary" /> {t("workout.title")}
         </h1>
         <Button onClick={() => setLogModal(true)} size="sm" className="gap-1.5">
-          <CheckCircle2 className="w-4 h-4" /> Treino feito!
+          <CheckCircle2 className="w-4 h-4" /> {t("workout.done_btn")}
         </Button>
       </div>
 
       <Tabs value={abaAtiva} onValueChange={setAbaAtiva}>
         <TabsList className="w-full grid grid-cols-4">
           <TabsTrigger value="plano" className="gap-1 text-[11px] sm:text-sm">
-            <ListChecks className="w-3.5 h-3.5" /> Meu Plano
+            <ListChecks className="w-3.5 h-3.5" /> {t("workout.my_plan")}
           </TabsTrigger>
           <TabsTrigger value="templates" className="gap-1 text-[11px] sm:text-sm">
-            <Sparkles className="w-3.5 h-3.5" /> Templates
+            <Sparkles className="w-3.5 h-3.5" /> {t("workout.templates")}
           </TabsTrigger>
           <TabsTrigger value="historico" className="gap-1 text-[11px] sm:text-sm">
-            <History className="w-3.5 h-3.5" /> Histórico
+            <History className="w-3.5 h-3.5" /> {t("workout.history")}
           </TabsTrigger>
           <TabsTrigger value="criar" className="gap-1 text-[11px] sm:text-sm">
-            <Settings2 className="w-3.5 h-3.5" /> Criar
+            <Settings2 className="w-3.5 h-3.5" /> {t("common.create")}
           </TabsTrigger>
         </TabsList>
 
@@ -305,8 +307,8 @@ export default function TreinoPage() {
           {!planoAtivo ? (
             <div className="text-center py-16 text-muted-foreground">
               <Dumbbell className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p className="font-medium">Nenhum plano ativo</p>
-              <p className="text-sm mt-1">Crie seu plano na aba "Criar Plano"</p>
+              <p className="font-medium">{t("workout.no_plan")}</p>
+              <p className="text-sm mt-1">{t("workout.no_plan_hint")}</p>
             </div>
           ) : (
             <>
@@ -320,7 +322,7 @@ export default function TreinoPage() {
                         <p className="text-sm text-muted-foreground mt-0.5">{planoAtivo.description}</p>
                       )}
                     </div>
-                    <Badge className="bg-primary/15 text-primary border-0 text-xs">Ativo</Badge>
+                    <Badge className="bg-primary/15 text-primary border-0 text-xs">{t("workout.active_badge")}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -331,7 +333,7 @@ export default function TreinoPage() {
                   <div className="flex items-center gap-2 mb-2">
                     <CalendarDays className="w-4 h-4 text-primary" />
                     <h3 className="text-sm font-semibold text-primary">
-                      Hoje — {treinoHoje.name}
+                      {t("common.today")} — {treinoHoje.name}
                     </h3>
                   </div>
                   <Card className="border-primary/30">
@@ -341,7 +343,7 @@ export default function TreinoPage() {
                         muscleGroup={(treinoHoje.muscleGroup as MuscleGroup) || "geral"}
                       />
                       <Button onClick={() => setLogModal(true)} className="w-full mt-4 gap-2" size="sm">
-                        <CheckCircle2 className="w-4 h-4" /> Marcar como feito
+                        <CheckCircle2 className="w-4 h-4" /> {t("workout.mark_done")}
                       </Button>
                     </CardContent>
                   </Card>
@@ -351,7 +353,7 @@ export default function TreinoPage() {
               {/* Todos os dias da semana */}
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
-                  <BarChart2 className="w-3.5 h-3.5" /> Semana completa
+                  <BarChart2 className="w-3.5 h-3.5" /> {t("workout.full_week")}
                 </h3>
                 <div className="space-y-2">
                   {planoAtivo.days.map((dia) => {
@@ -414,7 +416,7 @@ export default function TreinoPage() {
         {/* ── Tab: Templates ── */}
         <TabsContent value="templates" className="space-y-4 mt-4">
           <p className="text-sm text-muted-foreground">
-            Escolha um plano pronto e personalize como quiser antes de salvar.
+            {t("workout.templates_hint")}
           </p>
           {WORKOUT_TEMPLATES.map((tmpl) => (
             <TemplateCard
@@ -433,8 +435,8 @@ export default function TreinoPage() {
           {logs.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
               <History className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p className="font-medium">Nenhum treino registrado</p>
-              <p className="text-sm mt-1">Complete um treino para ver o histórico</p>
+              <p className="font-medium">{t("workout.history_empty")}</p>
+              <p className="text-sm mt-1">{t("workout.history_empty_hint")}</p>
             </div>
           ) : (
             <>
@@ -443,7 +445,7 @@ export default function TreinoPage() {
                 <Card className="border-border/40">
                   <CardContent className="pt-3 pb-3 text-center">
                     <div className="text-xl font-bold text-primary">{logs.length}</div>
-                    <div className="text-xs text-muted-foreground">treinos</div>
+                    <div className="text-xs text-muted-foreground">{t("common.workouts")}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border/40">
@@ -451,7 +453,7 @@ export default function TreinoPage() {
                     <div className="text-xl font-bold text-yellow-400">
                       {logs.reduce((a, l) => a + l.xpEarned, 0)}
                     </div>
-                    <div className="text-xs text-muted-foreground">XP ganho</div>
+                    <div className="text-xs text-muted-foreground">{t("workout.stat_xp")}</div>
                   </CardContent>
                 </Card>
                 <Card className="border-border/40">
@@ -459,7 +461,7 @@ export default function TreinoPage() {
                     <div className="text-xl font-bold">
                       {Math.round(logs.reduce((a, l) => a + (l.duration || 0), 0) / (logs.filter((l) => l.duration).length || 1))}
                     </div>
-                    <div className="text-xs text-muted-foreground">min/treino</div>
+                    <div className="text-xs text-muted-foreground">{t("workout.duration")}</div>
                   </CardContent>
                 </Card>
               </div>
@@ -473,7 +475,7 @@ export default function TreinoPage() {
                           <Dumbbell className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{log.plan?.name || "Treino livre"}</p>
+                          <p className="text-sm font-medium">{log.plan?.name || t("workout.free")}</p>
                           <p className="text-xs text-muted-foreground flex items-center gap-2">
                             <span className="flex items-center gap-1">
                               <CalendarDays className="w-3 h-3" />
@@ -505,17 +507,17 @@ export default function TreinoPage() {
           <Card className="border-border/40">
             <CardContent className="pt-4 space-y-3">
               <div className="space-y-1.5">
-                <Label>Nome do plano</Label>
+                <Label>{t("workout.plan_name")}</Label>
                 <Input
-                  placeholder="Ex: Hipertrofia ABC — 3x semana"
+                  placeholder={t("workout.plan_name_ph")}
                   value={novoPlan.name}
                   onChange={(e) => setNovoPlan((p) => ({ ...p, name: e.target.value }))}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Descrição (opcional)</Label>
+                <Label>{t("workout.plan_desc")}</Label>
                 <Input
-                  placeholder="Ex: Foco em hipertrofia com volume moderado"
+                  placeholder={t("workout.plan_desc_ph")}
                   value={novoPlan.description}
                   onChange={(e) => setNovoPlan((p) => ({ ...p, description: e.target.value }))}
                 />
@@ -561,7 +563,7 @@ export default function TreinoPage() {
                       onClick={() => removeDia(diaIdx)}
                       className="text-muted-foreground hover:text-destructive text-xs ml-auto"
                     >
-                      Remover dia
+                      {t("workout.remove_day")}
                     </button>
                   )}
                 </div>
@@ -569,10 +571,10 @@ export default function TreinoPage() {
               <CardContent className="space-y-2 pb-4">
                 {/* Cabeçalho das colunas */}
                 <div className="grid grid-cols-12 gap-1.5 text-xs text-muted-foreground px-0.5">
-                  <span className="col-span-5">Exercício</span>
-                  <span className="col-span-2 text-center">Séries</span>
-                  <span className="col-span-2 text-center">Reps</span>
-                  <span className="col-span-2 text-center">Kg</span>
+                  <span className="col-span-5">{t("workout.col_exercise")}</span>
+                  <span className="col-span-2 text-center">{t("workout.col_sets")}</span>
+                  <span className="col-span-2 text-center">{t("workout.col_reps")}</span>
+                  <span className="col-span-2 text-center">{t("workout.col_kg")}</span>
                   <span className="col-span-1" />
                 </div>
 
@@ -580,7 +582,7 @@ export default function TreinoPage() {
                   <div key={exIdx} className="grid grid-cols-12 gap-1.5 items-center">
                     <div className="col-span-5 relative">
                       <Input
-                        placeholder="Supino reto..."
+                        placeholder={t("workout.col_exercise")}
                         value={ex.name}
                         onChange={(e) => updateExercicio(diaIdx, exIdx, "name", e.target.value)}
                         className="h-8 text-sm pr-8"
@@ -640,7 +642,7 @@ export default function TreinoPage() {
                   onClick={() => addExercicio(diaIdx)}
                   className="w-full text-xs gap-1 mt-1"
                 >
-                  <Plus className="w-3 h-3" /> Adicionar exercício
+                  <Plus className="w-3 h-3" /> {t("workout.add_exercise")}
                 </Button>
               </CardContent>
             </Card>
@@ -648,11 +650,11 @@ export default function TreinoPage() {
 
           <div className="flex gap-2">
             <Button variant="outline" onClick={addDia} className="flex-1 gap-1.5">
-              <Plus className="w-4 h-4" /> Adicionar dia
+              <Plus className="w-4 h-4" /> {t("workout.add_day")}
             </Button>
             <Button onClick={salvarPlano} disabled={salvandoPlano} className="flex-1 gap-1.5">
-              {salvandoPlano ? "Salvando..." : (
-                <><CheckCircle2 className="w-4 h-4" /> Salvar Plano</>
+              {salvandoPlano ? t("common.saving") : (
+                <><CheckCircle2 className="w-4 h-4" /> {t("workout.save_plan")}</>
               )}
             </Button>
           </div>
@@ -664,19 +666,19 @@ export default function TreinoPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-primary" /> Registrar Treino
+              <CheckCircle2 className="w-5 h-5 text-primary" /> {t("workout.log_title")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {planos.length > 0 && (
               <div className="space-y-1.5">
-                <Label>Plano (opcional)</Label>
+                <Label>{t("workout.plan_label")}</Label>
                 <select
                   value={logPlanId}
                   onChange={(e) => setLogPlanId(e.target.value)}
                   className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm"
                 >
-                  <option value="">Treino livre</option>
+                  <option value="">{t("workout.free")}</option>
                   {planos.map((p) => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
@@ -684,7 +686,7 @@ export default function TreinoPage() {
               </div>
             )}
             <div className="space-y-1.5">
-              <Label className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Duração (minutos)</Label>
+              <Label className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {t("workout.duration")}</Label>
               <Input
                 type="number"
                 value={logDuration}
@@ -693,11 +695,11 @@ export default function TreinoPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Observações (opcional)</Label>
+              <Label>{t("workout.obs")}</Label>
               <Input
                 value={logNotes}
                 onChange={(e) => setLogNotes(e.target.value)}
-                placeholder="Como foi o treino?"
+                placeholder={t("workout.obs")}
               />
             </div>
 
@@ -705,14 +707,14 @@ export default function TreinoPage() {
             <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm text-muted-foreground">XP a ganhar</span>
+                <span className="text-sm text-muted-foreground">{t("workout.xp_earn")}</span>
               </div>
               <span className="text-xl font-bold text-yellow-400">+{xpEstimado}</span>
             </div>
 
             <Button onClick={registrarTreino} disabled={registrando} className="w-full gap-2">
-              {registrando ? "Registrando..." : (
-                <><CheckCircle2 className="w-4 h-4" /> Confirmar Treino</>
+              {registrando ? t("common.loading") : (
+                <><CheckCircle2 className="w-4 h-4" /> {t("workout.confirm")}</>
               )}
             </Button>
           </div>
@@ -821,6 +823,7 @@ function TemplateCard({
   onApply: (t: WorkoutTemplate) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <Card className="border-border/50 overflow-hidden">
@@ -841,7 +844,7 @@ function TemplateCard({
             <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <CalendarDays className="w-3 h-3" />
-                {template.daysPerWeek}× por semana
+                {template.daysPerWeek} {t("common.per_week")}
               </span>
               <span className="flex items-center gap-1">
                 <Star className="w-3 h-3" />
@@ -879,18 +882,18 @@ function TemplateCard({
             onClick={() => setOpen((v) => !v)}
           >
             {open
-              ? <><ChevronUp className="w-3.5 h-3.5" /> Ocultar</>
-              : <><ChevronDown className="w-3.5 h-3.5" /> Ver exercícios</>}
+              ? <><ChevronUp className="w-3.5 h-3.5" /> {t("workout.template_hide")}</>
+              : <><ChevronDown className="w-3.5 h-3.5" /> {t("workout.template_see")}</>}
           </Button>
           <Button
             size="sm"
             className="flex-1 gap-1.5 text-xs"
             onClick={() => {
               onApply(template);
-              toast.success(`Template "${template.name}" carregado! Personalize e salve.`);
+              toast.success(t("workout.template_loaded", { name: template.name }));
             }}
           >
-            <Sparkles className="w-3.5 h-3.5" /> Usar este plano
+            <Sparkles className="w-3.5 h-3.5" /> {t("workout.template_use")}
           </Button>
         </div>
       </CardContent>
