@@ -92,6 +92,14 @@ const t = {
     "register.error_generic": "Erro ao criar conta",
     "register.welcome": "Conta criada! Bem-vindo ao GymQuest!",
 
+    /* ── Landing ── */
+    "landing.tagline": "Seu Fitness Gamificado",
+    "landing.hero_title": "Transforme seu treino em uma",
+    "landing.hero_highlight": "jornada épica",
+    "landing.description": "Registre seu progresso, defina metas, monitore alimentação e treinos. Ganhe XP, suba de nível e desbloqueie conquistas enquanto atinge seus objetivos fitness.",
+    "landing.cta_primary": "Começar Gratuitamente",
+    "landing.cta_secondary": "Já tenho conta",
+
     /* ── Onboarding ── */
     "onboarding.step1_title": "Dados Físicos",
     "onboarding.step1_sub": "Para cálculos precisos de IMC e metabolismo",
@@ -405,6 +413,13 @@ const t = {
     "register.error_generic": "Error creating account",
     "register.welcome": "Account created! Welcome to GymQuest!",
 
+    "landing.tagline": "Your Gamified Fitness",
+    "landing.hero_title": "Transform your training into an",
+    "landing.hero_highlight": "epic journey",
+    "landing.description": "Log your progress, set goals, track nutrition and workouts. Earn XP, level up, and unlock achievements while reaching your fitness goals.",
+    "landing.cta_primary": "Get Started Free",
+    "landing.cta_secondary": "I have an account",
+
     "onboarding.step1_title": "Physical Data",
     "onboarding.step1_sub": "For accurate BMI and metabolism calculations",
     "onboarding.step2_title": "Initial Measurements",
@@ -709,6 +724,13 @@ const t = {
     "register.error_mismatch": "Wachtwoorden komen niet overeen",
     "register.error_generic": "Fout bij aanmaken account",
     "register.welcome": "Account aangemaakt! Welkom bij GymQuest!",
+
+    "landing.tagline": "Uw Gamified Fitness",
+    "landing.hero_title": "Transformeer uw training in een",
+    "landing.hero_highlight": "epische reis",
+    "landing.description": "Log uw voortgang, stel doelen in, volg voeding en trainingen. Verdien XP, level up en ontgrendel prestaties terwijl u uw fitnessdoelen bereikt.",
+    "landing.cta_primary": "Gratis Starten",
+    "landing.cta_secondary": "Ik heb een account",
 
     "onboarding.step1_title": "Lichaamsgegevens",
     "onboarding.step1_sub": "Voor nauwkeurige BMI- en metabolismeberekeningen",
