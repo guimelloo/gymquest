@@ -11,24 +11,26 @@ const logSchema = z.object({
   notes: z.string().max(1000).optional(),
 });
 
+/** Midnight UTC for a YYYY-MM-DD string — matches @db.Date storage */
+function toDateUTC(dateStr: string) {
+  return new Date(dateStr + "T00:00:00.000Z");
+}
+
 export async function GET(request: Request) {
   const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
   const d = new Date();
   const localFallback = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const date = searchParams.get("date") || searchParams.get("today") || localFallback;
-  const targetDate = new Date(date);
-  targetDate.setHours(12, 0, 0, 0);
+  const dateStr = searchParams.get("date") || searchParams.get("today") || localFallback;
 
   const [log, user] = await Promise.all([
-    prisma.dailyLog.findFirst({
+    prisma.dailyLog.findUnique({
       where: {
-        userId: session.user.id,
-        date: {
-          gte: new Date(date + "T00:00:00.000Z"),
-          lt: new Date(date + "T23:59:59.999Z"),
+        userId_date: {
+          userId: session.user.id,
+          date: toDateUTC(dateStr),
         },
       },
     }),
@@ -43,7 +45,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const body = await request.json();
@@ -53,64 +55,56 @@ export async function POST(request: Request) {
     }
 
     const now = new Date();
-    const localFallback2 = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    const dateStr = parsed.data.date || localFallback2;
-    const dateObj = new Date(dateStr + "T12:00:00.000Z");
+    const localFallback = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const dateStr = parsed.data.date || localFallback;
+    const dateUTC = toDateUTC(dateStr);
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { waterGoal: true },
+    const updateData: Record<string, unknown> = {};
+    if (parsed.data.waterMl !== undefined) updateData.waterMl = parsed.data.waterMl;
+    if (parsed.data.mood     !== undefined) updateData.mood    = parsed.data.mood;
+    if (parsed.data.notes    !== undefined) updateData.notes   = parsed.data.notes;
+
+    // Check if this is the first log for today (for XP award)
+    const existingBefore = await prisma.dailyLog.findUnique({
+      where: { userId_date: { userId: session.user.id, date: dateUTC } },
+      select: { id: true },
     });
 
-    const existingLog = await prisma.dailyLog.findFirst({
-      where: {
+    // Upsert — atomically creates or updates, never violates the unique constraint
+    const log = await prisma.dailyLog.upsert({
+      where: { userId_date: { userId: session.user.id, date: dateUTC } },
+      update: updateData,
+      create: {
         userId: session.user.id,
-        date: {
-          gte: new Date(dateStr + "T00:00:00.000Z"),
-          lt: new Date(dateStr + "T23:59:59.999Z"),
-        },
+        date: dateUTC,
+        ...updateData,
       },
     });
 
-    const updateData = {
-      ...(parsed.data.waterMl !== undefined && { waterMl: parsed.data.waterMl }),
-      ...(parsed.data.mood !== undefined && { mood: parsed.data.mood }),
-      ...(parsed.data.notes !== undefined && { notes: parsed.data.notes }),
-    };
-
-    let log;
     let xpResult = null;
 
-    if (existingLog) {
-      log = await prisma.dailyLog.update({
-        where: { id: existingLog.id },
-        data: updateData,
-      });
-    } else {
-      log = await prisma.dailyLog.create({
-        data: {
-          userId: session.user.id,
-          date: dateObj,
-          ...updateData,
-        },
-      });
-
-      // XP por check-in diário
+    // XP for daily check-in only on first entry of the day
+    if (!existingBefore) {
       xpResult = await addXP(session.user.id, 5, "CHECK_IN");
       await atualizarStreak(session.user.id);
     }
 
-    // Verificar meta de água
+    // XP for reaching water goal
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { waterGoal: true },
+    });
     if (
       parsed.data.waterMl !== undefined &&
-      parsed.data.waterMl >= (user?.waterGoal || 2500)
+      parsed.data.waterMl >= (user?.waterGoal || 2500) &&
+      (existingBefore ? true : true) // always check
     ) {
       xpResult = await addXP(session.user.id, 15, "META_AGUA");
     }
 
     return NextResponse.json({ log, xp: xpResult });
   } catch (error) {
-    console.error(error);
+    console.error("[diario POST]", error);
     return NextResponse.json({ error: "Erro ao salvar" }, { status: 500 });
   }
 }

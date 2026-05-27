@@ -57,6 +57,7 @@ model BodyMeasurement {
   chest       Float?
   hips        Float?
   notes       String?
+  photo       String?  // base64 compressed JPEG thumbnail
 
   @@index([userId, date])
 }

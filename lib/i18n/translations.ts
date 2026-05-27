@@ -358,6 +358,14 @@ const t = {
     "progress.navy_needs_data": "Adicione peso + cintura para ver estimativa",
     "progress.analyzer_cta": "Analisador de Físico",
     "progress.analyzer_cta_sub": "Avalie seus músculos e receba um plano de desenvolvimento personalizado",
+    "progress.photos_title": "Fotos do Físico",
+    "progress.add_photo": "Adicionar Foto",
+    "progress.photo_tap": "Toque para adicionar uma foto",
+    "progress.photo_hint": "Máx. 10 MB • JPEG/PNG",
+    "progress.photo_error": "Erro ao processar foto",
+    "progress.invalid_photo": "Arquivo deve ser uma imagem",
+    "progress.photo_too_large": "Foto muito grande (máx. 10 MB)",
+    "progress.notes_placeholder": "Observações (opcional)",
 
     /* ── Physique Analyzer (rule-based) ── */
     "analyzer.title": "Analisador de Físico",
@@ -731,6 +739,14 @@ const t = {
     "progress.navy_needs_data": "Add weight + waist to see estimate",
     "progress.analyzer_cta": "Physique Analyzer",
     "progress.analyzer_cta_sub": "Rate your muscles and get a personalized development plan",
+    "progress.photos_title": "Physique Photos",
+    "progress.add_photo": "Add Photo",
+    "progress.photo_tap": "Tap to add a photo",
+    "progress.photo_hint": "Max 10 MB • JPEG/PNG",
+    "progress.photo_error": "Error processing photo",
+    "progress.invalid_photo": "File must be an image",
+    "progress.photo_too_large": "Photo too large (max 10 MB)",
+    "progress.notes_placeholder": "Notes (optional)",
 
     /* ── Physique Analyzer (rule-based) ── */
     "analyzer.title": "Physique Analyzer",
@@ -1104,6 +1120,14 @@ const t = {
     "progress.navy_needs_data": "Voeg gewicht + taille toe voor schatting",
     "progress.analyzer_cta": "Lichaamsanalyzer",
     "progress.analyzer_cta_sub": "Beoordeel uw spieren en ontvang een persoonlijk ontwikkelingsplan",
+    "progress.photos_title": "Lichaamsfoto's",
+    "progress.add_photo": "Foto Toevoegen",
+    "progress.photo_tap": "Tik om een foto toe te voegen",
+    "progress.photo_hint": "Max. 10 MB • JPEG/PNG",
+    "progress.photo_error": "Fout bij verwerken foto",
+    "progress.invalid_photo": "Bestand moet een afbeelding zijn",
+    "progress.photo_too_large": "Foto te groot (max. 10 MB)",
+    "progress.notes_placeholder": "Notities (optioneel)",
 
     /* ── Physique Analyzer (rule-based) ── */
     "analyzer.title": "Lichaamsanalyzer",

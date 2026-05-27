@@ -34,22 +34,20 @@ export async function GET(request: Request) {
         where: { userId: session.user.id },
         orderBy: { date: "desc" },
       }),
-      prisma.dailyLog.findFirst({
+      // DailyLog uses @@unique([userId, date]) — exact match on the @db.Date midnight-UTC value
+      prisma.dailyLog.findUnique({
         where: {
-          userId: session.user.id,
-          date: {
-            gte: new Date(today + "T00:00:00.000Z"),
-            lt: new Date(today + "T23:59:59.999Z"),
+          userId_date: {
+            userId: session.user.id,
+            date: new Date(today + "T00:00:00.000Z"),
           },
         },
       }),
+      // MealEntry.date is @db.Date (stored at midnight UTC) — exact date match
       prisma.mealEntry.findMany({
         where: {
           userId: session.user.id,
-          date: {
-            gte: new Date(today + "T00:00:00.000Z"),
-            lt: new Date(today + "T23:59:59.999Z"),
-          },
+          date: new Date(today + "T00:00:00.000Z"),
         },
       }),
       prisma.workoutLog.findMany({
