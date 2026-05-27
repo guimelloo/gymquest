@@ -384,7 +384,7 @@ export default function ProgressoPage() {
                 onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
             </div>
             <Button onClick={salvarMedida} disabled={saving} className="w-full gap-1.5">
-              {saving ? t("common.saving") : <><CheckCircle2 className="w-4 h-4" /> {t("progress.save_btn")}</>
+              {saving ? t("common.saving") : <><CheckCircle2 className="w-4 h-4" /> {t("progress.save_btn")}</>}
             </Button>
           </div>
         </DialogContent>
