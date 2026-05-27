@@ -929,6 +929,6 @@ const t = {
   },
 } as const;
 
-export type TranslationKey = keyof typeof translations.pt;
+export type TranslationKey = keyof typeof t.pt;
 
-export default translations;
+export default t;
