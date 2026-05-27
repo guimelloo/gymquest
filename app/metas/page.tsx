@@ -391,7 +391,7 @@ export default function MetasPage() {
             </div>
 
             <Button onClick={criarMeta} disabled={saving} className="w-full gap-1.5">
-              {saving ? t("common.loading") : <><Target className="w-4 h-4" /> {t("goals.create_btn")}</>
+              {saving ? t("common.loading") : <><Target className="w-4 h-4" /> {t("goals.create_btn")}</>}
             </Button>
           </div>
         </DialogContent>
