@@ -73,6 +73,7 @@ export default function ProgressoPage() {
   const [saving, setSaving] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null); // lightbox
+  const [showCharts, setShowCharts] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
@@ -176,13 +177,24 @@ export default function ProgressoPage() {
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BarChart2 className="w-6 h-6 text-primary" /> {t("progress.title")}
         </h1>
-        <Button onClick={() => setModalOpen(true)} className="gap-1.5">
-          <Plus className="w-4 h-4" /> {t("progress.new_btn")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={showCharts ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowCharts((v) => !v)}
+            className="gap-1.5"
+          >
+            <BarChart2 className="w-4 h-4" />
+            {t("progress.view_charts")}
+          </Button>
+          <Button onClick={() => setModalOpen(true)} size="sm" className="gap-1.5">
+            <Plus className="w-4 h-4" /> {t("progress.new_btn")}
+          </Button>
+        </div>
       </div>
 
       {/* ── Current stats ── */}
@@ -265,130 +277,132 @@ export default function ProgressoPage() {
       )}
 
       {/* ── Charts ── */}
-      {chartData.length >= 2 && (
-        <Tabs defaultValue="peso">
-          <TabsList className="grid grid-cols-4 w-full">
-            <TabsTrigger value="peso">{t("common.weight")}</TabsTrigger>
-            <TabsTrigger value="gordura">{t("common.fat")}</TabsTrigger>
-            <TabsTrigger value="cintura">{t("progress.waist")}</TabsTrigger>
-            <TabsTrigger value="musculo">{t("progress.chart_muscle")}</TabsTrigger>
-          </TabsList>
+      {showCharts && (
+        <Card className="border-primary/20">
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart2 className="w-4 h-4 text-primary" /> {t("progress.charts_title")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pb-4">
+            {chartData.length === 0 ? (
+              <div className="text-center py-10 text-muted-foreground">
+                <BarChart2 className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                <p className="text-sm font-medium">{t("progress.no_records")}</p>
+                <p className="text-xs mt-1">{t("progress.charts_hint")}</p>
+                <Button onClick={() => setModalOpen(true)} variant="outline" size="sm" className="mt-4 gap-1.5">
+                  <Plus className="w-3.5 h-3.5" /> {t("progress.new_btn")}
+                </Button>
+              </div>
+            ) : (
+              <Tabs defaultValue="peso">
+                <TabsList className="grid grid-cols-4 w-full mb-2">
+                  <TabsTrigger value="peso">{t("common.weight")}</TabsTrigger>
+                  <TabsTrigger value="gordura">{t("common.fat")}</TabsTrigger>
+                  <TabsTrigger value="cintura">{t("progress.waist")}</TabsTrigger>
+                  <TabsTrigger value="musculo">{t("progress.chart_muscle")}</TabsTrigger>
+                </TabsList>
 
-          {/* Combined overlay chart on Weight tab */}
-          <TabsContent value="peso">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-primary" /> {t("progress.weight_chart")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
-                    <YAxis yAxisId="peso" domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
-                    {chartData.some((d) => d.gordura) && (
-                      <YAxis yAxisId="gordura" orientation="right" domain={[0, 50]} tick={{ fontSize: 11, fill: "#6b7280" }} width={32} />
-                    )}
-                    <Tooltip
-                      contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: 12 }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Line yAxisId="peso" type="monotone" dataKey="peso" name={t("common.weight")} stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
-                    {chartData.some((d) => d.gordura) && (
-                      <Line yAxisId="gordura" type="monotone" dataKey="gordura" name={`% ${t("common.fat")}`} stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} connectNulls />
-                    )}
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="gordura">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <TrendingDown className="w-4 h-4 text-orange-400" /> % {t("common.fat")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {chartData.some((d) => d.gordura) ? (
+                {/* Weight + Fat combined */}
+                <TabsContent value="peso">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Scale className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-sm font-medium">{t("progress.weight_chart")}</span>
+                  </div>
                   <ResponsiveContainer width="100%" height={220}>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                       <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
-                      <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
-                      <Tooltip
-                        contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
-                        formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`, t("common.fat")]}
-                      />
-                      <Line type="monotone" dataKey="gordura" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} connectNulls />
+                      <YAxis yAxisId="peso" domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
+                      {chartData.some((d) => d.gordura) && (
+                        <YAxis yAxisId="gordura" orientation="right" domain={[0, 50]} tick={{ fontSize: 11, fill: "#6b7280" }} width={32} />
+                      )}
+                      <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: 12 }} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Line yAxisId="peso" type="monotone" dataKey="peso" name={t("common.weight")} stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                      {chartData.some((d) => d.gordura) && (
+                        <Line yAxisId="gordura" type="monotone" dataKey="gordura" name={`% ${t("common.fat")}`} stroke="#f97316" strokeWidth={2} dot={{ r: 4 }} connectNulls />
+                      )}
                     </LineChart>
                   </ResponsiveContainer>
-                ) : (
-                  <EmptyChart label={t("progress.no_records_hint")} />
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  {chartData.length === 1 && <p className="text-xs text-center text-muted-foreground mt-2">{t("progress.charts_need_more")}</p>}
+                </TabsContent>
 
-          <TabsContent value="cintura">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Ruler className="w-4 h-4 text-purple-400" /> {t("progress.waist")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {chartData.some((d) => d.cintura) ? (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
-                      <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
-                      <Tooltip
-                        contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
-                        formatter={(v) => [`${Number(v ?? 0).toFixed(1)} cm`, t("progress.waist")]}
-                      />
-                      <Line type="monotone" dataKey="cintura" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} connectNulls />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <EmptyChart label={t("progress.no_records_hint")} />
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                {/* Body Fat */}
+                <TabsContent value="gordura">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <TrendingDown className="w-3.5 h-3.5 text-orange-400" />
+                    <span className="text-sm font-medium">% {t("common.fat")}</span>
+                  </div>
+                  {chartData.some((d) => d.gordura) ? (
+                    <>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <LineChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
+                          <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`, t("common.fat")]} />
+                          <Line type="monotone" dataKey="gordura" stroke="#f97316" strokeWidth={2} dot={{ r: 4 }} connectNulls />
+                        </LineChart>
+                      </ResponsiveContainer>
+                      {chartData.length === 1 && <p className="text-xs text-center text-muted-foreground mt-2">{t("progress.charts_need_more")}</p>}
+                    </>
+                  ) : (
+                    <EmptyChart label={t("progress.charts_add_fat")} icon={<TrendingDown className="w-8 h-8 opacity-20 text-orange-400" />} />
+                  )}
+                </TabsContent>
 
-          <TabsContent value="musculo">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Dumbbell className="w-4 h-4 text-blue-400" /> {t("progress.chart_muscle")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {chartData.some((d) => d.musculo) ? (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
-                      <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
-                      <Tooltip
-                        contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}
-                        formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`, t("progress.chart_muscle")]}
-                      />
-                      <Line type="monotone" dataKey="musculo" stroke="#60a5fa" strokeWidth={2} dot={{ r: 3 }} connectNulls />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <EmptyChart label={t("progress.no_records_hint")} />
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                {/* Waist */}
+                <TabsContent value="cintura">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Ruler className="w-3.5 h-3.5 text-purple-400" />
+                    <span className="text-sm font-medium">{t("progress.waist")}</span>
+                  </div>
+                  {chartData.some((d) => d.cintura) ? (
+                    <>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <LineChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
+                          <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} formatter={(v) => [`${Number(v ?? 0).toFixed(1)} cm`, t("progress.waist")]} />
+                          <Line type="monotone" dataKey="cintura" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} connectNulls />
+                        </LineChart>
+                      </ResponsiveContainer>
+                      {chartData.length === 1 && <p className="text-xs text-center text-muted-foreground mt-2">{t("progress.charts_need_more")}</p>}
+                    </>
+                  ) : (
+                    <EmptyChart label={t("progress.charts_add_waist")} icon={<Ruler className="w-8 h-8 opacity-20 text-purple-400" />} />
+                  )}
+                </TabsContent>
+
+                {/* Muscle */}
+                <TabsContent value="musculo">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Dumbbell className="w-3.5 h-3.5 text-blue-400" />
+                    <span className="text-sm font-medium">{t("progress.chart_muscle")}</span>
+                  </div>
+                  {chartData.some((d) => d.musculo) ? (
+                    <>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <LineChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#6b7280" }} />
+                          <YAxis domain={["auto", "auto"]} tick={{ fontSize: 11, fill: "#6b7280" }} width={40} />
+                          <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`, t("progress.chart_muscle")]} />
+                          <Line type="monotone" dataKey="musculo" stroke="#60a5fa" strokeWidth={2} dot={{ r: 4 }} connectNulls />
+                        </LineChart>
+                      </ResponsiveContainer>
+                      {chartData.length === 1 && <p className="text-xs text-center text-muted-foreground mt-2">{t("progress.charts_need_more")}</p>}
+                    </>
+                  ) : (
+                    <EmptyChart label={t("progress.charts_add_muscle")} icon={<Dumbbell className="w-8 h-8 opacity-20 text-blue-400" />} />
+                  )}
+                </TabsContent>
+              </Tabs>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* ── Photo gallery strip ── */}
@@ -596,6 +610,11 @@ function TrendBadge({ diff, unit, small }: { diff: number; unit: string; small?:
   );
 }
 
-function EmptyChart({ label }: { label: string }) {
-  return <div className="text-center py-8 text-muted-foreground text-sm">{label}</div>;
+function EmptyChart({ label, icon }: { label: string; icon?: React.ReactNode }) {
+  return (
+    <div className="text-center py-10 text-muted-foreground text-sm flex flex-col items-center gap-2">
+      {icon}
+      {label}
+    </div>
+  );
 }
