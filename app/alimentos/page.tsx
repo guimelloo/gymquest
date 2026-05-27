@@ -324,7 +324,7 @@ export default function AlimentosPage() {
           </div>
         ) : refeicoes.length > 0 ? (
           <div className="space-y-4">
-            {TIPO_REFEICAO.map((tipo) => {
+            {TIPO_REFEICAO_DEF.map((tipo) => {
               const items = refeicoes.filter((r) => r.mealType === tipo.v);
               if (items.length === 0) return null;
               const calsTipo = items.reduce((a, r) => a + (r.calories ?? 0), 0);
@@ -334,7 +334,7 @@ export default function AlimentosPage() {
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5">
                       <tipo.Icon className="w-3.5 h-3.5" />
-                      {tipo.l}
+                      {t(tipo.lKey)}
                     </h3>
                     <span className="text-xs text-muted-foreground">{Math.round(calsTipo)} kcal</span>
                   </div>
@@ -399,8 +399,8 @@ export default function AlimentosPage() {
                   <Select value={tipoRefeicao} onValueChange={(v) => setTipoRefeicao(v ?? tipoRefeicao)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {TIPO_REFEICAO.map((t) => (
-                        <SelectItem key={t.v} value={t.v}>{t.l}</SelectItem>
+                      {TIPO_REFEICAO_DEF.map((mealType) => (
+                        <SelectItem key={mealType.v} value={mealType.v}>{t(mealType.lKey)}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

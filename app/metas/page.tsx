@@ -319,10 +319,10 @@ export default function MetasPage() {
               <Label>{t("goals.type")}</Label>
               <div className="grid grid-cols-2 gap-2">
                 {TIPO_META(t).map((item) => {
-                  const TIcon = t.Icon;
+                  const TIcon = item.Icon;
                   return (
                     <button
-                      key={t.v}
+                      key={item.v}
                       type="button"
                       onClick={() => handleTipoChange(item.v)}
                       className={`p-2 rounded-lg border text-xs font-medium transition-colors text-left flex items-center gap-1.5 ${
