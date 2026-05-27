@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/i18n/context";
 import { calcularDiasRestantes, verificarRitmoMeta } from "@/lib/gamification";
 import { calcularProgresso } from "@/lib/calculations";
 import { format } from "date-fns";
@@ -36,23 +37,24 @@ interface Meta {
   completedAt: string | null;
 }
 
-const TIPO_META = [
-  { v: "bodyFat", l: "Reduzir gordura",      u: "%",     Icon: Flame },
-  { v: "weight",  l: "Emagrecer",             u: "kg",    Icon: Scale },
-  { v: "muscle",  l: "Ganhar massa",          u: "%",     Icon: Dumbbell },
-  { v: "streak",  l: "Sequência de dias",     u: "dias",  Icon: Flame },
-  { v: "workout", l: "Número de treinos",     u: "treinos",Icon: Dumbbell },
-  { v: "water",   l: "Meta de hidratação",    u: "ml",    Icon: Droplets },
-  { v: "custom",  l: "Meta personalizada",    u: "",      Icon: Sparkles },
+const TIPO_META = (t: any) => [
+  { v: "bodyFat", l: t("goals.type_fat"),      u: "%",     Icon: Flame },
+  { v: "weight",  l: t("goals.type_weight"),   u: "kg",    Icon: Scale },
+  { v: "muscle",  l: t("goals.type_muscle"),   u: "%",     Icon: Dumbbell },
+  { v: "streak",  l: t("goals.type_streak"),   u: "dias",  Icon: Flame },
+  { v: "workout", l: t("goals.type_workout"),  u: "treinos",Icon: Dumbbell },
+  { v: "water",   l: t("goals.type_water"),    u: "ml",    Icon: Droplets },
+  { v: "custom",  l: t("goals.type_custom"),   u: "",      Icon: Sparkles },
 ];
 
-const STATUS_RITMO: Record<string, { label: string; color: string; Icon: React.ComponentType<{ className?: string }> }> = {
-  no_prazo: { label: "No prazo",  color: "text-green-400",  Icon: CheckCircle2 },
-  risco:    { label: "Em risco",  color: "text-yellow-400", Icon: AlertTriangle },
-  atrasado: { label: "Atrasado",  color: "text-red-400",    Icon: XCircle },
-};
+const STATUS_RITMO = (t: any): Record<string, { label: string; color: string; Icon: React.ComponentType<{ className?: string }> }> => ({
+  no_prazo: { label: t("goals.on_track"),  color: "text-green-400",  Icon: CheckCircle2 },
+  risco:    { label: t("goals.at_risk"),  color: "text-yellow-400", Icon: AlertTriangle },
+  atrasado: { label: t("goals.late"),    color: "text-red-400",    Icon: XCircle },
+});
 
 export default function MetasPage() {
+  const { t } = useLanguage();
   const [metas, setMetas] = useState<Meta[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
@@ -79,13 +81,13 @@ export default function MetasPage() {
   }, []);
 
   const handleTipoChange = (tipo: string) => {
-    const t = TIPO_META.find((t) => t.v === tipo);
-    setForm((f) => ({ ...f, type: tipo, unit: t?.u || "" }));
+    const found = TIPO_META(t).find((item) => item.v === tipo);
+    setForm((f) => ({ ...f, type: tipo, unit: found?.u || "" }));
   };
 
   const criarMeta = async () => {
     if (!form.title || !form.targetValue) {
-      toast.error("Título e valor alvo são obrigatórios");
+      toast.error(t("goals.error_fields"));
       return;
     }
     setSaving(true);
@@ -108,12 +110,12 @@ export default function MetasPage() {
       const data = await res.json();
       if (!res.ok) { toast.error(data.error); return; }
 
-      toast.success("Missão criada!");
+      toast.success(t("goals.created"));
       setMetas((m) => [data, ...m]);
       setModal(false);
       setForm({ type: "bodyFat", title: "", description: "", targetValue: "", startValue: "", unit: "%", deadline: "", xpReward: "200" });
     } catch {
-      toast.error("Erro ao criar meta");
+      toast.error(t("goals.error_create"));
     } finally {
       setSaving(false);
     }
@@ -142,16 +144,16 @@ export default function MetasPage() {
       if (!res.ok) { toast.error(data.error); return; }
 
       if (newStatus === "completed") {
-        toast.success(`Meta "${updateModal.title}" concluída! +${updateModal.xpReward} XP`);
+        toast.success(t("goals.completed_msg", { title: updateModal.title, xp: updateModal.xpReward }));
       } else {
-        toast.success("Progresso atualizado!");
+        toast.success(t("goals.updated"));
       }
 
       setMetas((m) => m.map((meta) => (meta.id === data.id ? data : meta)));
       setUpdateModal(null);
       setNovoValor("");
     } catch {
-      toast.error("Erro ao atualizar");
+      toast.error(t("goals.error_update"));
     } finally {
       setSaving(false);
     }
@@ -160,33 +162,33 @@ export default function MetasPage() {
   const excluirMeta = async (id: string) => {
     await fetch(`/api/metas?id=${id}`, { method: "DELETE" });
     setMetas((m) => m.filter((meta) => meta.id !== id));
-    toast.success("Meta removida");
+    toast.success(t("goals.removed"));
   };
 
   const ativas = metas.filter((m) => m.status === "active");
   const concluidas = metas.filter((m) => m.status === "completed");
 
-  if (loading) return <div className="p-6 text-center text-muted-foreground">Carregando...</div>;
+  if (loading) return <div className="p-6 text-center text-muted-foreground">{t("common.loading")}</div>;
 
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Target className="w-6 h-6 text-primary" />
-          Missões
+          {t("goals.title")}
         </h1>
         <Button onClick={() => setModal(true)} className="gap-1.5">
-          <Plus className="w-4 h-4" /> Nova Missão
+          <Plus className="w-4 h-4" /> {t("goals.new_btn")}
         </Button>
       </div>
 
       <Tabs defaultValue="ativas">
         <TabsList>
           <TabsTrigger value="ativas">
-            Ativas {ativas.length > 0 && <Badge className="ml-1 text-xs bg-primary/20 text-primary">{ativas.length}</Badge>}
+            {t("goals.active_tab")} {ativas.length > 0 && <Badge className="ml-1 text-xs bg-primary/20 text-primary">{ativas.length}</Badge>}
           </TabsTrigger>
           <TabsTrigger value="concluidas">
-            Concluídas {concluidas.length > 0 && <Badge className="ml-1 text-xs">{concluidas.length}</Badge>}
+            {t("goals.done_tab")} {concluidas.length > 0 && <Badge className="ml-1 text-xs">{concluidas.length}</Badge>}
           </TabsTrigger>
         </TabsList>
 
@@ -194,10 +196,10 @@ export default function MetasPage() {
           {ativas.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Target className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>Nenhuma missão ativa</p>
-              <p className="text-sm mt-1">Crie sua primeira missão!</p>
+              <p>{t("goals.no_active")}</p>
+              <p className="text-sm mt-1">{t("goals.no_active_hint")}</p>
               <Button onClick={() => setModal(true)} className="mt-4 gap-1.5">
-                <Plus className="w-4 h-4" /> Criar Missão
+                <Plus className="w-4 h-4" /> {t("goals.create_first")}
               </Button>
             </div>
           ) : (
@@ -209,7 +211,7 @@ export default function MetasPage() {
               const ritmo = diasRestantes !== null
                 ? verificarRitmoMeta(diasRestantes, progresso)
                 : "no_prazo";
-              const ritmoInfo = STATUS_RITMO[ritmo];
+              const ritmoInfo = STATUS_RITMO(t)[ritmo];
               const RitmoIcon = ritmoInfo.Icon;
 
               return (
@@ -228,7 +230,7 @@ export default function MetasPage() {
                           {diasRestantes !== null && (
                             <Badge variant="outline" className={`text-xs gap-1 ${diasRestantes <= 7 ? "text-red-400 border-red-400/50" : ""}`}>
                               <CalendarDays className="w-3 h-3" />
-                              {diasRestantes === 0 ? "Vence hoje" : `${diasRestantes} dias`}
+                              {diasRestantes === 0 ? t("goals.due_today") : t("goals.days_left", { n: diasRestantes })}
                             </Badge>
                           )}
                           <span className={`text-xs font-medium flex items-center gap-1 ${ritmoInfo.color}`}>
@@ -254,7 +256,7 @@ export default function MetasPage() {
                         onClick={() => { setUpdateModal(meta); setNovoValor(meta.currentValue?.toString() || ""); }}
                         className="flex-1 text-xs gap-1.5"
                       >
-                        <Pencil className="w-3 h-3" /> Atualizar progresso
+                        <Pencil className="w-3 h-3" /> {t("goals.update_title")}
                       </Button>
                       <button
                         onClick={() => excluirMeta(meta.id)}
@@ -274,8 +276,8 @@ export default function MetasPage() {
           {concluidas.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Trophy className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>Nenhuma missão concluída ainda</p>
-              <p className="text-sm mt-1">Continue trabalhando nas suas missões!</p>
+              <p>{t("goals.no_done")}</p>
+              <p className="text-sm mt-1">{t("goals.no_done_hint")}</p>
             </div>
           ) : (
             concluidas.map((meta) => (
@@ -309,28 +311,28 @@ export default function MetasPage() {
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" /> Nova Missão
+              <Target className="w-5 h-5 text-primary" /> {t("goals.new_btn")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Tipo de meta</Label>
+              <Label>{t("goals.type")}</Label>
               <div className="grid grid-cols-2 gap-2">
-                {TIPO_META.map((t) => {
+                {TIPO_META(t).map((item) => {
                   const TIcon = t.Icon;
                   return (
                     <button
                       key={t.v}
                       type="button"
-                      onClick={() => handleTipoChange(t.v)}
+                      onClick={() => handleTipoChange(item.v)}
                       className={`p-2 rounded-lg border text-xs font-medium transition-colors text-left flex items-center gap-1.5 ${
-                        form.type === t.v
+                        form.type === item.v
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border hover:border-primary/50"
                       }`}
                     >
                       <TIcon className="w-3.5 h-3.5 shrink-0" />
-                      {t.l}
+                      {item.l}
                     </button>
                   );
                 })}
@@ -338,9 +340,9 @@ export default function MetasPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Nome da missão</Label>
+              <Label>{t("goals.mission_name")}</Label>
               <Input
-                placeholder="Ex: Chegar a 10% de gordura"
+                placeholder={t("onboarding.goal_name_ph")}
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               />
@@ -348,17 +350,17 @@ export default function MetasPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Valor inicial ({form.unit})</Label>
+                <Label>{t("goals.start")} ({form.unit})</Label>
                 <Input
                   type="number"
                   step="0.1"
-                  placeholder="Valor atual"
+                  placeholder={t("goals.current_value")}
                   value={form.startValue}
                   onChange={(e) => setForm((f) => ({ ...f, startValue: e.target.value }))}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Meta ({form.unit})</Label>
+                <Label>{t("goals.target")} ({form.unit})</Label>
                 <Input
                   type="number"
                   step="0.1"
@@ -371,7 +373,7 @@ export default function MetasPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Prazo (opcional)</Label>
+                <Label>{t("goals.deadline")} (opcional)</Label>
                 <Input
                   type="date"
                   value={form.deadline}
@@ -379,7 +381,7 @@ export default function MetasPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Recompensa XP</Label>
+                <Label>{t("goals.xp_reward")}</Label>
                 <Input
                   type="number"
                   value={form.xpReward}
@@ -389,7 +391,7 @@ export default function MetasPage() {
             </div>
 
             <Button onClick={criarMeta} disabled={saving} className="w-full gap-1.5">
-              {saving ? "Criando..." : <><Target className="w-4 h-4" /> Criar Missão</>}
+              {saving ? t("common.loading") : <><Target className="w-4 h-4" /> {t("goals.create_btn")}</>
             </Button>
           </div>
         </DialogContent>
@@ -400,14 +402,14 @@ export default function MetasPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Pencil className="w-4 h-4" /> Atualizar Progresso
+              <Pencil className="w-4 h-4" /> {t("goals.update_title")}
             </DialogTitle>
           </DialogHeader>
           {updateModal && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">{updateModal.title}</p>
               <div className="space-y-2">
-                <Label>Valor atual ({updateModal.unit})</Label>
+                <Label>{t("goals.current_value")} ({updateModal.unit})</Label>
                 <Input
                   type="number"
                   step="0.1"
@@ -416,11 +418,11 @@ export default function MetasPage() {
                   placeholder="Valor atual"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Meta: {updateModal.targetValue}{updateModal.unit}
+                  {t("goals.target")}: {updateModal.targetValue}{updateModal.unit}
                 </p>
               </div>
               <Button onClick={atualizarProgresso} disabled={saving} className="w-full">
-                {saving ? "Salvando..." : "Salvar Progresso"}
+                {saving ? t("common.saving") : t("goals.save_progress")}
               </Button>
             </div>
           )}

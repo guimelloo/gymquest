@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { signOut } from "next-auth/react";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/i18n/context";
 import { calcularNivel, getTitulo, getCorRaridade } from "@/lib/gamification";
 import { calcularIMC, classificarIMC, calcularIdade } from "@/lib/calculations";
 import { format } from "date-fns";
@@ -57,14 +58,15 @@ function LevelIcon({ nivel }: { nivel: number }) {
   return <Shield className="w-8 h-8 text-gray-400" />;
 }
 
-const RARIDADE_INFO: Record<string, { label: string; Icon: React.ComponentType<{ className?: string }> }> = {
-  lendario: { label: "Lendário", Icon: Crown },
-  epico:    { label: "Épico",    Icon: Star },
-  raro:     { label: "Raro",     Icon: Shield },
-  comum:    { label: "Comum",    Icon: Trophy },
-};
+const RARIDADE_INFO = (t: any): Record<string, { label: string; Icon: React.ComponentType<{ className?: string }> }> => ({
+  lendario: { label: t("profile.rarity_legendary"), Icon: Crown },
+  epico:    { label: t("profile.rarity_epic"),     Icon: Star },
+  raro:     { label: t("profile.rarity_rare"),     Icon: Shield },
+  comum:    { label: t("profile.rarity_common"),   Icon: Trophy },
+});
 
 export default function PerfilPage() {
+  const { t } = useLanguage();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -108,21 +110,21 @@ export default function PerfilPage() {
           waterGoal: parseInt(form.waterGoal) || 2500,
         }),
       });
-      if (!res.ok) { toast.error("Erro ao salvar"); return; }
+      if (!res.ok) { toast.error(t("profile.error_save")); return; }
 
-      toast.success("Perfil atualizado!");
+      toast.success(t("profile.saved"));
       setEditMode(false);
 
       const updated = await fetch("/api/user/profile").then((r) => r.json());
       setProfile(updated);
     } catch {
-      toast.error("Erro ao salvar");
+      toast.error(t("profile.error_save"));
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <div className="p-6 text-center text-muted-foreground">Carregando...</div>;
+  if (loading) return <div className="p-6 text-center text-muted-foreground">{t("common.loading")}</div>;
   if (!profile) return null;
 
   const { levelInfo } = profile;
@@ -134,7 +136,7 @@ export default function PerfilPage() {
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold flex items-center gap-2">
-        <UserCircle className="w-6 h-6 text-primary" /> Perfil
+        <UserCircle className="w-6 h-6 text-primary" /> {t("profile.title")}
       </h1>
 
       {/* Player Card */}
@@ -149,11 +151,11 @@ export default function PerfilPage() {
               <p className="text-sm text-muted-foreground">{profile.email}</p>
               <div className="flex flex-wrap items-center gap-2 mt-1">
                 <Badge variant="outline" className="text-primary border-primary/50 text-xs">
-                  Nível {levelInfo.nivel} — {titulo}
+                  {t("common.level")} {levelInfo.nivel} — {titulo}
                 </Badge>
                 {profile.streak > 0 && (
                   <Badge variant="outline" className="text-orange-400 border-orange-400/50 text-xs gap-1">
-                    <Flame className="w-3 h-3" /> {profile.streak} dias
+                    <Flame className="w-3 h-3" /> {profile.streak} {t("common.days")}
                   </Badge>
                 )}
               </div>
@@ -161,7 +163,7 @@ export default function PerfilPage() {
             <div className="text-right">
               <div className="text-2xl font-bold text-primary">{profile.xp.toLocaleString()}</div>
               <div className="text-xs text-muted-foreground flex items-center justify-end gap-1">
-                <Zap className="w-3 h-3 text-yellow-400" /> XP Total
+                <Zap className="w-3 h-3 text-yellow-400" /> {t("profile.xp_total")}
               </div>
             </div>
           </div>
@@ -169,8 +171,8 @@ export default function PerfilPage() {
           {/* XP Bar */}
           <div className="mt-4">
             <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-              <span>{levelInfo.xpAtual} / {levelInfo.xpProximoNivel} XP</span>
-              <span>→ Nível {levelInfo.nivel + 1}</span>
+              <span>{levelInfo.xpAtual} / {levelInfo.xpProximoNivel} {t("common.xp")}</span>
+              <span>{t("profile.next_level", { n: levelInfo.nivel + 1 })}</span>
             </div>
             <div className="h-2.5 bg-secondary rounded-full overflow-hidden">
               <div
@@ -187,21 +189,21 @@ export default function PerfilPage() {
                 <Dumbbell className="w-4 h-4 text-blue-400" />
                 {profile.totalWorkouts}
               </div>
-              <div className="text-xs text-muted-foreground">Treinos</div>
+              <div className="text-xs text-muted-foreground">{t("common.workouts")}</div>
             </div>
             <div className="text-center border-x border-border">
               <div className="text-lg font-bold flex items-center justify-center gap-1">
                 <Flame className="w-4 h-4 text-orange-400" />
                 {profile.streak}
               </div>
-              <div className="text-xs text-muted-foreground">Streak</div>
+              <div className="text-xs text-muted-foreground">{t("common.streak")}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-bold flex items-center justify-center gap-1">
                 <Trophy className="w-4 h-4 text-yellow-400" />
                 {profile.achievements.length}
               </div>
-              <div className="text-xs text-muted-foreground">Conquistas</div>
+              <div className="text-xs text-muted-foreground">{t("profile.achievements_tab")}</div>
             </div>
           </div>
         </CardContent>
@@ -210,10 +212,10 @@ export default function PerfilPage() {
       <Tabs defaultValue="conquistas">
         <TabsList className="w-full">
           <TabsTrigger value="conquistas" className="flex-1 gap-1.5">
-            <Trophy className="w-4 h-4" /> Conquistas
+            <Trophy className="w-4 h-4" /> {t("profile.achievements_tab")}
           </TabsTrigger>
           <TabsTrigger value="dados" className="flex-1 gap-1.5">
-            <UserCircle className="w-4 h-4" /> Dados
+            <UserCircle className="w-4 h-4" /> {t("profile.data_tab")}
           </TabsTrigger>
         </TabsList>
 
@@ -222,18 +224,18 @@ export default function PerfilPage() {
           {profile.achievements.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Trophy className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>Nenhuma conquista ainda</p>
-              <p className="text-sm mt-1">Complete missões e ações para desbloquear conquistas</p>
+              <p>{t("profile.no_achievements")}</p>
+              <p className="text-sm mt-1">{t("profile.no_achievements_hint")}</p>
             </div>
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                {profile.achievements.length} conquista{profile.achievements.length !== 1 ? "s" : ""} desbloqueada{profile.achievements.length !== 1 ? "s" : ""}
+                {t("profile.achievement_count", { n: profile.achievements.length, s: profile.achievements.length !== 1 ? "s" : "" })}
               </p>
               {raridades.map((raridade) => {
                 const list = profile.achievements.filter((a) => a.achievement.rarity === raridade);
                 if (list.length === 0) return null;
-                const info = RARIDADE_INFO[raridade];
+                const info = RARIDADE_INFO(t)[raridade];
                 const RIcon = info?.Icon ?? Trophy;
                 return (
                   <div key={raridade}>
@@ -275,25 +277,25 @@ export default function PerfilPage() {
             <>
               <Card>
                 <CardContent className="pt-4 space-y-3">
-                  <InfoRow label="Nome"          value={profile.name} />
-                  <InfoRow label="Email"         value={profile.email} />
-                  {profile.height && <InfoRow label="Altura" value={`${profile.height} cm`} />}
-                  {idade && <InfoRow label="Idade" value={`${idade} anos`} />}
-                  {profile.gender && <InfoRow label="Sexo" value={profile.gender === "male" ? "Masculino" : "Feminino"} />}
-                  <InfoRow label="Meta de água"  value={`${profile.waterGoal} ml/dia`} />
-                  <InfoRow label="Membro desde"  value={membroDesde} capitalize />
+                  <InfoRow label={t("common.name")}          value={profile.name} t={t} />
+                  <InfoRow label={t("common.email")}         value={profile.email} t={t} />
+                  {profile.height && <InfoRow label={t("profile.height")} value={`${profile.height} cm`} t={t} />}
+                  {idade && <InfoRow label="Idade" value={`${idade} anos`} t={t} />}
+                  {profile.gender && <InfoRow label={t("profile.sex")} value={profile.gender === "male" ? t("common.male") : t("common.female")} t={t} />}
+                  <InfoRow label={t("profile.water_goal")}  value={`${profile.waterGoal} ml/dia`} t={t} />
+                  <InfoRow label={t("profile.member_since")}  value={membroDesde} capitalize t={t} />
                 </CardContent>
               </Card>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setEditMode(true)} className="flex-1 gap-1.5">
-                  <Pencil className="w-4 h-4" /> Editar perfil
+                  <Pencil className="w-4 h-4" /> {t("common.edit")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => signOut({ callbackUrl: "/" })}
                   className="flex-1 text-destructive hover:bg-destructive/10 gap-1.5"
                 >
-                  <LogOut className="w-4 h-4" /> Sair
+                  <LogOut className="w-4 h-4" /> {t("profile.logout")}
                 </Button>
               </div>
             </>
@@ -301,21 +303,21 @@ export default function PerfilPage() {
             <Card>
               <CardContent className="pt-4 space-y-4">
                 <div className="space-y-2">
-                  <Label>Nome</Label>
+                  <Label>{t("common.name")}</Label>
                   <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Altura (cm)</Label>
+                  <Label>{t("profile.height")}</Label>
                   <Input type="number" value={form.height} onChange={(e) => setForm((f) => ({ ...f, height: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Data de nascimento</Label>
+                  <Label>{t("profile.birth_date")}</Label>
                   <Input type="date" value={form.birthDate} onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Sexo</Label>
+                  <Label>{t("profile.sex")}</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    {[{ v: "male", l: "Masculino" }, { v: "female", l: "Feminino" }].map((g) => (
+                    {[{ v: "male", l: t("common.male") }, { v: "female", l: t("common.female") }].map((g) => (
                       <button
                         key={g.v}
                         type="button"
@@ -330,13 +332,13 @@ export default function PerfilPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Meta de água diária (ml)</Label>
+                  <Label>{t("profile.water_goal")}</Label>
                   <Input type="number" value={form.waterGoal} onChange={(e) => setForm((f) => ({ ...f, waterGoal: e.target.value }))} />
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setEditMode(false)} className="flex-1">Cancelar</Button>
+                  <Button variant="outline" onClick={() => setEditMode(false)} className="flex-1">{t("common.cancel")}</Button>
                   <Button onClick={salvarPerfil} disabled={saving} className="flex-1">
-                    {saving ? "Salvando..." : "Salvar"}
+                    {saving ? t("common.saving") : t("common.save")}
                   </Button>
                 </div>
               </CardContent>
@@ -348,7 +350,7 @@ export default function PerfilPage() {
   );
 }
 
-function InfoRow({ label, value, capitalize }: { label: string; value: string; capitalize?: boolean }) {
+function InfoRow({ label, value, capitalize, t }: { label: string; value: string; capitalize?: boolean; t?: any }) {
   return (
     <div className="flex justify-between">
       <span className="text-sm text-muted-foreground">{label}</span>
